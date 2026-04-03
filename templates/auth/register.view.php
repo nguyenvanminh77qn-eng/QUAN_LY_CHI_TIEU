@@ -1,5 +1,6 @@
 <?php
     if(!CODE) die('Bạn không có quyền truy cập vào trang này');
+
     layout("header", ["title" => "Đăng ký",
         "css" => ["pages/register"]
     ]);
@@ -83,3 +84,6 @@
     </main>
 <?php
 layout("footer", ["js" => ["pages/register"]]);
+
+?>
+

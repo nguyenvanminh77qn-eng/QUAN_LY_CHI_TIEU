@@ -1,0 +1,20 @@
+
+:root {
+    --color-primary: #004689;
+    --color-primary-hover: #003366;
+
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+
+    --color-text-main: #0f172a;
+    --color-text-muted: #64748b;
+
+    --color-border: #e2e8f0;
+
+    /* 🔤 Typography */
+    --font-main: 'Inter', sans-serif;
+
+    /* 📐 UI */
+    --radius-xl: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+}
