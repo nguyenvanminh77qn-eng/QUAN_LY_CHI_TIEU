@@ -4,6 +4,7 @@
         "css" => ["pages/login"]
     ]);
 ?>
+
  <main class="login-container">
         <header class="login-header">
             <h1 class="login-header__title">Login</h1>
@@ -51,3 +52,5 @@
 <?php
     layout("footer", [  "js" => ["pages/login"]
     ]);
+
+
