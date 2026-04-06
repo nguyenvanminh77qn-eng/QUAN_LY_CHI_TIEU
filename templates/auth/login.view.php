@@ -1,9 +1,11 @@
 <?php
     if(!CODE) die('Bạn không có quyền truy cập vào trang này');
     layout("header", ["title" => "Đăng nhập",
-        "css" => ["pages/login"]
+
+        "css" => ["pages/login.css"]
     ]);
 ?>
+
 
  <main class="login-container">
         <header class="login-header">
@@ -53,4 +55,4 @@
     layout("footer", [  "js" => ["pages/login"]
     ]);
 
-
+?>
