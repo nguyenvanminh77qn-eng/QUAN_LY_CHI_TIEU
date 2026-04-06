@@ -1,23 +1,14 @@
-/* Biến màu sắc chủ đạo */
-:root {
-    --primary: #004689;
-    --primary-light: #005db4;
-    --secondary: #005228;
-    --text-main: #1d1b1e;
-    --text-soft: #49454f;
-    --bg-body: #f8f9ff;
-    --white: #ffffff;
-    --border: #79747e;
-}
-
+/* --- Base Styles --- */
 body {
-    background-color: var(--bg-body);
-    font-family: 'Inter', sans-serif;
-    color: var(--text-main);
+    background-color: var(--color-bg);
+    font-family: var(--font-main);
+    color: var(--color-text-main);
     margin: 0;
+    line-height: 1.5;
 }
 
-.main-content {
+/* --- Block: register-page --- */
+.register-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -25,147 +16,178 @@ body {
     padding: 40px 20px;
 }
 
-.grid-container {
+.register-page__container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 80px;
     max-width: 1200px;
     width: 100%;
+    align-items: center;
 }
 
-/* Phần nội dung bên trái */
-.hero-text h1 {
+.register-page__title {
     font-size: 56px;
     line-height: 1.1;
     font-weight: 800;
-    color: var(--primary);
-    margin-bottom: 20px;
-    margin-top: 50%;
-    transform: translateY(-50%);
+    color: var(--color-primary);
+    margin-bottom: 24px;
 }
 
-.hero-text p {
-    font-size: 18px;
-    color: var(--text-soft);
-    margin-bottom: 40px;
-    margin-top: -35px;
-    font-size: 22px;
+.register-page__description {
+    font-size: 20px;
+    color: var(--color-text-muted);
+    max-width: 500px;
 }
 
-.features-list {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.feature-card {
-    display: flex;
-    gap: 20px;
-}
-
-.icon-box {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.tertiary-bg { background: rgba(0, 82, 40, 0.1); color: var(--secondary); }
-.primary-bg { background: rgba(0, 70, 137, 0.1); color: var(--primary); }
-
-.feature-info h3 { margin: 0 0 5px 0; font-size: 20px; }
-.feature-info p { margin: 0; font-size: 15px; color: var(--text-soft); }
-
-/* Phần Form bên phải */
-.form-container {
-    background: var(--white);
+/* --- Block: signup-card --- */
+.signup-card {
+    background: var(--color-surface);
     padding: 48px;
     border-radius: 28px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--color-border);
 }
 
-.form-header h2 { font-size: 32px; margin-bottom: 8px; }
-.form-header p { color: var(--text-soft); margin-bottom: 32px; }
+.signup-card__title {
+    font-size: 32px;
+    margin: 0 0 8px 0;
+    color: var(--color-text-main);
+}
 
-.input-group { margin-bottom: 20px; }
-.input-group label {
-    display: block;
+.signup-card__subtitle {
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+}
+
+.signup-card__footer {
+    text-align: center;
+    margin-top: 24px;
     font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 8px;
+    color: var(--color-text-muted);
 }
 
-.input-relative {
-    position: relative;
-    display: flex;
-    align-items: center;
+.signup-card__link {
+    color: var(--color-primary);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 5px;
 }
 
-.input-icon {
-    position: absolute;
-    left: 16px;
-    color: var(--text-soft);
-    font-size: 22px;
+.signup-card__link:hover {
+    text-decoration: underline;
 }
 
-.input-relative input {
-    width: 100%;
-    padding: 14px 16px 14px 50px; /* Chừa 50px bên trái cho icon */
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    font-size: 16px;
-    transition: all 0.2s;
-}
-
-.input-relative input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.1);
-}
-
-.input-row {
+/* --- Block: form-group & form-row --- */
+.form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-.checkbox-group {
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group__label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-main);
+}
+
+.form-group__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.form-group__icon {
+    position: absolute;
+    left: 16px;
+    color: var(--color-text-muted);
+    font-size: 20px;
+    pointer-events: none; /* Click xuyên qua icon */
+}
+
+.form-group__input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+}
+
+.form-group__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(0, 70, 137, 0.1);
+}
+
+/* --- Block: form-checkbox --- */
+.form-checkbox {
     display: flex;
     gap: 10px;
     align-items: center;
     margin: 24px 0;
     font-size: 14px;
+    color: var(--color-text-muted);
 }
 
+.form-checkbox__link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* --- Button Style --- */
 .btn-submit {
     width: 100%;
     padding: 16px;
-    background: var(--primary);
-    color: white;
+    background: var(--color-primary);
+    color: #ffffff;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
 }
 
-.btn-submit:hover { background: var(--primary-light); }
-
-.mobile-footer {
-    text-align: center;
-    margin-top: 24px;
-    font-size: 14px;
+.btn-submit:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 70, 137, 0.2);
 }
 
-.mobile-footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+.btn-submit:active {
+    transform: translateY(0);
+}
 
-/* Responsive */
+/* --- Responsive (Mobile) --- */
 @media (max-width: 992px) {
-    .grid-container { grid-template-columns: 1fr; gap: 40px; }
-    .hero-text { text-align: center; }
-    .lg-hidden { display: block; }
+    .register-page__container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .register-page__description {
+        margin: 0 auto;
+    }
+
+    .register-page__title {
+        font-size: 40px;
+    }
+
+    .signup-card {
+        padding: 32px 24px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 }
