@@ -1,16 +1,16 @@
 <?php
     if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
-
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "quan_ly_chi_tieu";
-    $port = 3306;
+    // Get database configuration from environment variables
+    $servername = $_ENV['DB_HOST'] ?? 'localhost';
+    $username = $_ENV['DB_USER'] ?? 'root';
+    $password = $_ENV['DB_PASS'] ?? '';
+    $dbname = $_ENV['DB_NAME'] ?? 'quan_ly_chi_tieu';
+    $port = $_ENV['DB_PORT'] ?? 3306;
 
     try {
         // Cấu hình chuỗi DSN cho PDO
-       $dsn = "mysql:host=$servername;dbname=$dbname;port=$port;charset=utf8";
+       $dsn = "mysql:host=$servername;dbname=$dbname;port=$port;charset=utf8mb4";
         
         // Các tùy chọn bổ sung cho PDO
         $options = [

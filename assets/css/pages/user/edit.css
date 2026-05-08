@@ -1,0 +1,156 @@
+/* =========================================
+   EDIT EXPENSE STYLES
+========================================= */
+
+/* =========================================
+   GIAO DIỆN FORM SỬA CHI TIÊU
+========================================= */
+.edit-expense-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 650px; /* Khống chế độ rộng để form không bị bè ra hai bên */
+  border-radius: 8px;
+  padding: 35px 40px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); /* Đổ bóng cực nhẹ giống ảnh */
+}
+
+.edit-card-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #111;
+  margin-bottom: 25px;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.edit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+}
+
+.edit-form-input,
+.edit-form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.edit-form-input:focus,
+.edit-form-textarea:focus {
+  border-color: #3b82f6; /* Xanh dương khi bấm vào ô chữ */
+}
+
+.edit-form-textarea {
+  resize: vertical; /* Cho phép kéo dài chiều dọc */
+  min-height: 80px;
+}
+
+/* Khu vực Nút Radio */
+.edit-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.radio-label {
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  cursor: pointer;
+  width: 15px;
+  height: 15px;
+  accent-color: #3b82f6; /* Nút radio chuyển xanh khi chọn */
+}
+
+/* Khu vực Nút bấm Lưu / Hủy */
+.edit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-cancel {
+  background-color: #f3f4f6; /* Nền xám nhạt */
+  color: #374151; /* Chữ xám đậm */
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-save {
+  background-color: #2563eb; /* Màu xanh đậm giống ảnh */
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-save:hover {
+  background-color: #1d4ed8;
+}
+
+/* Các classes tách từ inline Sửa (edit.php) */
+.expense-card__tag--edit {
+  background: #f39c12; 
+  color: white; 
+  padding: 5px 10px; 
+  border-radius: 4px; 
+  font-weight: bold; 
+  font-size: 12px;
+}
+
+.edit-error {
+  color: red;
+  font-size: 13px;
+  margin-top: 5px;
+  display: block;
+}
+
+.btn-edit-submit {
+  background: #3498db !important;
+}
+.btn-edit-submit:hover {
+  background: #2980b9 !important;
+}
+
+.btn-edit-cancel {
+  text-decoration: none; 
+  display: inline-block; 
+  text-align: center;
+}

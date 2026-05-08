@@ -1,12 +1,16 @@
 <?php
 
+// Define CODE first (needed by env-loader.php)
+const CODE = true;
+
+// Load environment variables
+require_once __DIR__ . "/includes/env-loader.php";
 
 const TEMPLATE = "home";
 const ACTION = "welcome";
-const CODE = true;
 
 
-define('_WEB_HOST', 'http://'. $_SERVER['HTTP_HOST'] . '/QUAN_LY_CHI_TIEU');
+define('_WEB_HOST', 'http://'.$_SERVER['HTTP_HOST'].'/QUAN_LY_CHI_TIEU');
 
 define('_WEB_ROOT', _WEB_HOST.'/');
 

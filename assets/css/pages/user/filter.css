@@ -1,0 +1,245 @@
+@import url("dashboard.css");
+
+/* Lọc: khoảng cách giữa thẻ bộ lọc và kết quả */
+.filter-page .page-content>.card+.card {
+    margin-top: 24px;
+}
+
+/* Các styles được tách từ filter.php */
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    margin: 0 2px;
+}
+
+.action-btn.edit {
+    color: #3498db;
+}
+
+.action-btn.delete {
+    color: #e74c3c;
+}
+
+.filter-form-inline {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.filter-btn-submit {
+    border: none;
+    outline: none;
+    padding: 8px 30px;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: #3498db;
+    transition: .25s ease;
+}
+
+.filter-btn-submit:hover {
+    filter: brightness(90%);
+}
+
+.filter-btn-reset {
+    padding: 10px 20px;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: #3498db;
+    transition: .25s ease;
+}
+
+
+.filter-btn-reset:hover {
+    filter: brightness(90%);
+}
+
+.filter-result-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.filter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-toolbar h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.filter-btn-delete {
+    padding: 8px 15px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-btn-delete:hover {
+    background: #c0392b;
+}
+
+.filter-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.filter-thead {
+    background: #f8f9fa;
+}
+
+.filter-th {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+    color: #333;
+}
+
+.filter-th.text-right {
+    text-align: right;
+}
+
+.filter-th.text-center {
+    text-align: center;
+}
+
+.filter-tr {
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.filter-tr:hover {
+    background: #fafafa;
+}
+
+.filter-td {
+    padding: 15px;
+    color: #333;
+}
+
+.filter-td.category {
+    font-weight: 500;
+}
+
+.filter-td.desc {
+    color: #666;
+}
+
+.filter-td.income {
+    text-align: right;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.filter-td.expense {
+    text-align: right;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.filter-td.text-center {
+    text-align: center;
+}
+
+.filter-empty-state {
+    padding: 30px;
+    text-align: center;
+    color: #999;
+}
+
+/* Styles separated from filter.php inline attributes */
+.filter-page .page-content {
+    padding-top: 20px;
+}
+
+.filter-form-card {
+    margin-bottom: 20px;
+}
+
+.filter-separator {
+    color: #777;
+}
+
+.filter-th.action-col {
+    width: 100px;
+}
+
+.filter-th.checkbox-col {
+    width: 40px;
+}
+
+/* --- Category Badge (icon + name) --- */
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f6ff;
+    border: 1px solid #d0e4ff;
+    border-radius: 20px;
+    padding: 4px 12px 4px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.category-badge__icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.category-badge__name {
+    color: var(--color-text-main);
+}
+
+/* --- Edit Button (replaces emoji link) --- */
+.btn-action-edit {
+    display: inline-block;
+    padding: 5px 14px;
+    background: #eaf4ff;
+    color: #1a6fbb;
+    border: 1px solid #b3d6f5;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-action-edit:hover {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+}

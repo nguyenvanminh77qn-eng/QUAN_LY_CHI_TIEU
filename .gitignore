@@ -1,0 +1,30 @@
+# Environment configuration
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Local development
+node_modules/
+vendor/
+.cache/
+
+# Database backups
+*.sql.bak
+
+# Temp files
+tmp/
+temp/

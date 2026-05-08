@@ -1,0 +1,37 @@
+@import url("dashboard.css");
+
+/* Trang xóa: vùng hướng dẫn */
+.delete-page .card-box:first-of-type h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: var(--negative);
+}
+
+.delete-page .card-box:first-of-type p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.delete-page .delete-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.delete-page .data-table th:last-child {
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 15px;
+}
+
+.delete-page .data-table td:last-child {
+  text-align: center;
+}
+
+.delete-page .delete-table-title {
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: var(--text-main);
+}
