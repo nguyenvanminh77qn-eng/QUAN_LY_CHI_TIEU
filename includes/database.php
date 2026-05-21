@@ -21,6 +21,22 @@
         return query($sql, $data);
         }
 
+    function insertGetId($table, $data){
+        global $conn;
+
+        $columns = implode(", ", array_keys($data));
+        $placeholders = ":" . implode(", :", array_keys($data));
+        $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
+
+        try {
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($data);
+            return (int) $conn->lastInsertId();
+        } catch (PDOException $e) {
+            die("Lỗi truy vấn: " . $e->getMessage());
+        }
+    }
+
     function update($table, $data, $condition, $conditionData){
         $set = [];
         foreach($data as $key=>$value){

@@ -11,6 +11,7 @@ $loginToken = getSession('loginToken');
 
   <nav class="menu-links">
     <a href="?template=user&action=dashboard" class="<?= ($view == 'dashboard') ? 'active' : '' ?>">Danh sách chi tiêu</a>
+    <a href="?template=user&action=budget" class="<?= ($view == 'budget') ? 'active' : '' ?>">Ngân sách</a>
     <a href="?template=user&action=filter" class="<?= ($view == 'filter') ? 'active' : '' ?>">Lọc chi tiêu</a>
     <a href="?template=user&action=export" class="<?= ($view == 'export') ? 'active' : '' ?>">Xuất dữ liệu (CSV)</a>
   </nav>

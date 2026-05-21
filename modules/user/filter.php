@@ -2,7 +2,7 @@
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
 
-if(isset($_POST['filter-btn'])){
+if (isset($_POST['filter-btn'])) {
     $filterALl = filter();
 
     $oldInputs = [];
@@ -10,8 +10,10 @@ if(isset($_POST['filter-btn'])){
     $oldInputs['type'] = $filterALl['type'];
     $oldInputs['category_id'] = $filterALl['category_id'];
     $oldInputs['description'] = $filterALl['description'];
+    $oldInputs['price_min'] = $filterALl['price_min'] ?? '';
+    $oldInputs['price_max'] = $filterALl['price_max'] ?? '';
 
-    $where = "WHERE transaction.user_id = :user_id";
+    $where = "WHERE transaction.user_id = :user_id AND transaction.is_archived = 0";
     $params = ['user_id' => $filterALl['id']];
 
     if (!empty($filterALl['transaction_date'])) {
@@ -30,6 +32,16 @@ if(isset($_POST['filter-btn'])){
         $where .= " AND LOWER(description) LIKE LOWER(:description)";
         $params['description'] = '%' . trim($filterALl['description']) . '%';
     }
+    $priceMin = trim($filterALl['price_min'] ?? '');
+    $priceMax = trim($filterALl['price_max'] ?? '');
+    if ($priceMin !== '' && is_numeric($priceMin) && (float)$priceMin >= 0) {
+        $where .= " AND price >= :price_min";
+        $params['price_min'] = (float)$priceMin;
+    }
+    if ($priceMax !== '' && is_numeric($priceMax) && (float)$priceMax >= 0) {
+        $where .= " AND price <= :price_max";
+        $params['price_max'] = (float)$priceMax;
+    }
 
     $sqlCount = "SELECT COUNT(*) as total FROM transaction JOIN category ON category.id = transaction.category_id $where";
     $total = getOne($sqlCount, $params)['total'];
@@ -38,7 +50,7 @@ if(isset($_POST['filter-btn'])){
     setSession("filter_params", $params);
     setSession("filter_oldInputs", $oldInputs);
     setSession("filter_total", $total);
-    
+
     redirect("?template=user&action=filter");
 }
 

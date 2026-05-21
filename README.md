@@ -10,19 +10,18 @@
 - ✅ Tìm kiếm và lọc giao dịch theo tiêu chí
 - ✅ Thêm nhanh giao dịch bằng AI suggestion
 - ✅ Xuất dữ liệu giao dịch ra file (CSV/Excel)
-- ✅ Xem thống kê chi tiêu cá nhân
 - ✅ Quản lý tài khoản (cập nhật profile, đổi mật khẩu)
 
 ### Dành cho Quản Trị Viên
 
-- ✅ Quản lý danh sách người dùng (tạo, sửa, xóa, khóa tài khoản)
+- ✅ Quản lý danh sách người dùng (mở ,khóa tài khoản người dùng)
 - ✅ Xem và quản lý tất cả giao dịch trong hệ thống
-- ✅ Gửi thông báo/noti cho người dùng
+- ✅ Gửi thông báo/notification cho người dùng
 - ✅ Xem báo cáo thống kê tổng hợp
 
 ### Bảo Mật
 
-- ✅ Xác thực người dùng (Đăng ký, Đăng nhập)
+- ✅ Xác thực người dùng (Đăng ký, Đăng nhập, Kích hoạt tài khoản qua email)
 - ✅ Quên mật khẩu & Đặt lại mật khẩu qua email
 - ✅ Login token để đảm bảo phiên làm việc an toàn
 - ✅ Kiểm soát quyền truy cập theo vai trò (Role-based Access Control)
@@ -151,36 +150,6 @@ QUAN_LY_CHI_TIEU/
 
 ---
 
-## 🚀 Sử Dụng
-
-### Đăng Nhập Lần Đầu
-
-Sau khi nhập database xong, hãy kiểm tra bảng `user` để lấy thông tin tài khoản mặc định hoặc tạo tài khoản mới.
-
-### Luồng Ứng Dụng
-
-1. **Trang Chủ** (`http://localhost/QUAN_LY_CHI_TIEU/`)
-   - Nếu chưa đăng nhập → Hiển thị trang welcome
-   - Nếu đã đăng nhập → Chuyển hướng đến dashboard
-
-2. **Đăng Nhập** (`?template=auth&action=login.view`)
-   - Nhập username/email và mật khẩu
-   - Hệ thống sẽ xác minh và tạo login token
-
-3. **Dashboard Người Dùng** (`?template=user&action=dashboard`)
-   - Xem danh sách giao dịch
-   - Thêm/sửa/xóa giao dịch
-   - Tìm kiếm và lọc
-
-4. **Dashboard Admin** (`?template=admin&action=dashboard`)
-   - Thống kê tổng hợp
-   - Quản lý người dùng
-   - Quản lý giao dịch
-
----
-
-## 🔐 Bảo Mật
-
 ### Các Biện Pháp Bảo Mật Đã Áp Dụng
 
 - ✅ Kiểm tra session và login token
@@ -197,36 +166,3 @@ Sau khi nhập database xong, hãy kiểm tra bảng `user` để lấy thông t
 - **Cập nhật** định kỳ để vá các lỗ hổng bảo mật
 
 ---
-
-### Lỗi "Không có quyền truy cập"
-
-**Nguyên nhân:**
-
-- Chưa đăng nhập
-- Tài khoản bị khóa bởi admin
-- Session hết hạn
-
-**Giải pháp:**
-
-1. Đăng nhập lại
-2. Kiểm tra trạng thái tài khoản trong admin panel
-3. Xóa cookie/cache trình duyệt
-
-### Trang 404 Not Found
-
-**Nguyên nhân:**
-
-- URL không đúng
-- File template hoặc module không tồn tại
-
-**Giải pháp:**
-
-1. Kiểm tra lại URL
-2. Kiểm tra các file trong `modules/` và `templates/`
-
-### v1.0.0 (2026-05-08)
-
-- ✅ Phát hành phiên bản đầu tiên
-- ✅ Hoàn thiện tính năng người dùng
-- ✅ Hoàn thiện tính năng admin
-- ✅ Hỗ trợ gửi email thông báo

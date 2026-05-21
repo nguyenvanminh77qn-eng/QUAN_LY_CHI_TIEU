@@ -7,6 +7,14 @@
     require_once "includes/session.php";
     require_once "includes/connect.php";
     require_once "includes/database.php";
+    require_once "includes/transaction_policy.php";
+    require_once "includes/transaction_helpers.php";
+
+    // Bảo mật session
+    session_set_cookie_params([
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
     session_start();
 
     // Kiểm tra trạng thái tài khoản toàn cục

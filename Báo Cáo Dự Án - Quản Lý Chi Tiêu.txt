@@ -1,0 +1,104 @@
+Báo Cáo Dự Án - Quản Lý Chi Tiêu
+
+Thành viên nhóm:
+-Nguyễn Văn Minh(Trưởng nhóm)
+-Hoàng Châu Hòa
+-Nguyễn Thanh Phương
+-Đặng Văn Thiên
+-Nguyễn Hữu Lộc
+
+Ngày hoàn thành: 14/05/2026
+
+Giới thiệu
+
+Tên dự án: Quản Lý Chi Tiêu
+
+Đây là ứng dụng quản lý chi tiêu cá nhân giúp người dùng ghi nhận giao dịch, phân loại chi tiêu, tìm kiếm dữ liệu và xem thống kê tài chính một cách dễ dàng.
+
+Hệ thống gồm 2 nhóm người dùng:
+
+Người dùng thường: quản lý chi tiêu cá nhân
+Quản trị viên: quản lý người dùng và toàn bộ hệ thống
+Các chức năng chính
+Tài khoản và đăng nhập
+Đăng ký tài khoản và kích hoạt qua email
+Đăng nhập, đăng xuất
+Quên mật khẩu và đặt lại mật khẩu
+Cập nhật thông tin cá nhân
+Quản lý chi tiêu
+Thêm, sửa, xóa giao dịch
+Tìm kiếm và lọc giao dịch
+Xuất dữ liệu ra CSV hoặc Excel
+Thêm giao dịch nhanh từ dashboard
+Báo cáo và thống kê
+Xem tổng chi tiêu theo tháng
+Thống kê theo danh mục
+Hiển thị biểu đồ chi tiêu
+Xem lịch sử giao dịch
+Chức năng quản trị
+Quản lý người dùng
+Khóa hoặc mở khóa tài khoản
+Quản lý danh mục
+Xem thống kê toàn hệ thống
+
+Cơ sở dữ liệu
+Hệ thống sử dụng 5 bảng chính:
+
+Bảng		Chức năng
+user		Lưu thông tin người dùng
+transaction	Lưu các giao dịch chi tiêu
+category	Lưu danh mục chi tiêu
+logintoken	Quản lý phiên đăng nhập
+notifications	Lưu thông báo hệ thống
+
+Ngoài ra hệ thống có sẵn 8 danh mục mặc định như ăn uống, giao thông, giải trí, mua sắm,...
+
+Cấu trúc thư mục
+Thư mục	Nội dung
+modules		Xử lý logic hệ thống
+templates	Giao diện người dùng
+includes	Kết nối database và các hàm hỗ trợ
+assets		CSS, JavaScript, hình ảnh
+database	File SQL backup
+
+Tổng dự án gồm hơn 70 file PHP, HTML, CSS và JavaScript.
+
+Công nghệ sử dụng
+Backend: PHP 7.2+
+Database: MySQL 5.7+
+Frontend: HTML, CSS, JavaScript
+Gửi email: PHPMailer
+Server: Apache (XAMPP)
+Bảo mật
+
+Hệ thống có các chức năng bảo mật cơ bản:
+
+Xử lý dữ liệu nhận vào thành dữ liệu sạch
+Mã hóa mật khẩu bằng password_hash
+Xác thực email
+Phân quyền người dùng
+Chống SQL Injection bang Prepare Statement 
+Đặt lại mật khẩu qua email
+Quản lý token đăng nhập
+Khóa và mở khóa tài khoản
+Hướng dẫn cài đặt
+Yêu cầu
+PHP 7.2 trở lên
+MySQL 5.7 trở lên
+Apache hoặc XAMPP
+
+Hiện tại hệ thống đã có thể sử dụng ổn định cho nhu cầu quản lý chi tiêu cá nhân.
+
+Hướng phát triển thêm
+
+Trong tương lai có thể mở rộng thêm:
+
+Biểu đồ thống kê nâng cao
+Ứng dụng mobile
+Xác thực 2 lớp (2FA)
+Dark mode
+RESTful API
+Thông báo thời gian thực
+
+Ngày hoàn thành: 14/05/2026
+Tình trạng: Hoàn thành và sẵn sàng sử dụng

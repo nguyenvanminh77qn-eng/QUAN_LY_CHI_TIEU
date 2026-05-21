@@ -5,7 +5,7 @@ if (!CODE) {
 
 if (!isset($_POST['add_btn'])) {
     return;
-}       
+}
 
 $filterAll = filter();
 $price = !empty($filterAll['price']) ? trim((string) $filterAll['price']) : '';
@@ -14,47 +14,61 @@ $description = !empty($filterAll['description']) ? trim((string) $filterAll['des
 $transactionDate = !empty($filterAll['transaction_date']) ? trim((string) $filterAll['transaction_date']) : '';
 $type = !empty($filterAll['type']) ? trim((string) $filterAll['type']) : '';
 $id = getSession('id');
-$errors = [];
-if ($price === ''){
-    $errors['price']['required'] = "Giá không được để trống";
-}else{
-    if(!isNumberFloat($price) || (float) $price <= 0)
-    $errors['price']['min'] = "Giá phải lớn hơn 0";
-}
+$confirmSuspicious = !empty($filterAll['confirm_suspicious']);
 
-if ($categoryId === '' || !ctype_digit($categoryId)) {
-    $errors['category']['required'] = 'Vui lòng chọn danh mục.';
-}
-if ($transactionDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $transactionDate)) {
-    $errors['transactionDate']['invalid'] = 'Ngày giao dịch không hợp lệ.';
-}
+$data = [
+    'price' => $price,
+    'category_id' => $categoryId,
+    'description' => $description,
+    'transaction_date' => $transactionDate,
+    'type' => $type,
+];
 
-if (!empty($errors)) {
-    setFlashData("errors",$errors);
-    setMessage("Vui lòng kiểm tra lỗi dưới đây","error");
+$result = validateTransaction($id, $data);
+if (!empty($result['errors'])) {
+    setFlashData('errors', $result['errors']);
+    $hasBudgetError = !empty($result['errors']['budget']) || !empty($result['errors']['monthly_budget']);
+    $msg = $hasBudgetError ? 'Giao dịch vượt quá ngân sách cho phép.' : 'Vui lòng kiểm tra lại thông tin bên dưới.';
+    setMessage($msg, 'error');
+    setFlashData('old_data', $data);
     redirect('?template=user&action=add');
 }
 
+if (!empty($result['warnings']) && !$confirmSuspicious) {
+    setFlashData('suspicious_warning', $result['warnings']);
+    setFlashData('suspicious_form_data', $data);
+    setMessage('Giao dịch cần xác nhận. Vui lòng xem cảnh báo bên dưới.', 'warning');
+    redirect('?template=user&action=add');
+}
 
-$date = $transactionDate !== '' ? $transactionDate : date('Y-m-d');
-$create_at = date("Y-m-d H:i:s");
-$dataInsert = [
+$insertId = insertGetId('transaction', [
     'user_id' => $id,
     'category_id' => (int) $categoryId,
     'price' => (float) $price,
     'description' => $description,
-    'transaction_date' => $date,
+    'transaction_date' => $transactionDate !== '' ? $transactionDate : date('Y-m-d'),
     'type' => $type,
-    'create_at'=>$create_at
-];
+    'create_at' => date('Y-m-d H:i:s'),
+    'source_type' => 'manual',
+]);
 
-$insertQuery = insert("transaction",$dataInsert);
-if($insertQuery){
-    setMessage('Thêm giao dịch thành công.');
-    redirect('?template=user&action=add');
-}else{
-    setMessage('Lỗi hệ thống, vui lòng thử lại sau','error');
+if ($insertId) {
+    $categoryInfo = getOne("SELECT name, icon FROM category WHERE id = :id", ['id' => (int) $categoryId]);
+    $catName = $categoryInfo ? $categoryInfo['name'] : 'Không xác định';
+    $catIcon = $categoryInfo ? ($categoryInfo['icon'] ?? '📦') : '📦';
+
+    setFlashData('transaction_success', [
+        'type' => $type,
+        'price' => $price,
+        'category_name' => $catName,
+        'category_icon' => $catIcon,
+        'description' => $description,
+        'transaction_date' => $transactionDate !== '' ? $transactionDate : date('Y-m-d'),
+    ]);
+
+    setMessage('Giao dịch được thêm thành công.');
     redirect('?template=user&action=add');
 }
 
-
+setMessage('Lỗi hệ thống, vui lòng thử lại sau.', 'error');
+redirect('?template=user&action=add');

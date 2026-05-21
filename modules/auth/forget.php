@@ -8,7 +8,10 @@
             $errors['email']['required'] = "Email không được để trống";
         }
         if(empty($errors)){
-            $user = getOne("SELECT id, email FROM user WHERE email = :email", ['email' => $email]);
+            $user = getOne(
+                "SELECT id, email FROM user WHERE email = :email",
+                ['email' => $email]
+            );
             if($user){
                 $forgotToken = bin2hex(random_bytes(16));
                 $updateData = [
@@ -29,7 +32,7 @@
                     setMessage("Lỗi khi reset mật khẩu, vui lòng thử lại", "error");
                 }
             }else{
-                setMessage("Email không tồn tại", "error"); 
+                setMessage("Email không tồn tại", "error");
             }
             redirect("?template=auth&action=forget.view");
         }else{

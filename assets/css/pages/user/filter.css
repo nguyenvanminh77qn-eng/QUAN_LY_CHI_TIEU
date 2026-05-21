@@ -56,20 +56,24 @@
 }
 
 .filter-btn-reset {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
     outline: none;
-    font-weight: bold;
-    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    color: #555;
     text-decoration: none;
     border-radius: 4px;
-    background-color: #3498db;
-    transition: .25s ease;
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    transition: .2s ease;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
-
 .filter-btn-reset:hover {
-    filter: brightness(90%);
+    background-color: #dee2e6;
+    color: #333;
 }
 
 .filter-result-card {
@@ -84,6 +88,8 @@
     padding: 15px 20px;
     background: #fff;
     border-bottom: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .filter-toolbar h3 {
@@ -93,13 +99,16 @@
 }
 
 .filter-btn-delete {
-    padding: 8px 15px;
+    padding: 8px 16px;
     background: #e74c3c;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s;
 }
 
 .filter-btn-delete:hover {

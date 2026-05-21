@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // Define CODE first (needed by env-loader.php)
 const CODE = true;
 

@@ -25,7 +25,10 @@
         if(empty($email)){
             $errors['email']['required'] = "Email không được để trống";
         }else{
-            $user = getOne("SELECT * FROM user WHERE email = :email", ['email' => $email]);
+            $user = getOne(
+                "SELECT id FROM user WHERE email = :email",
+                ['email' => $email]
+            );
             if($user){
                 $errors['email']['exists'] = "Email đã được sử dụng";
             }
@@ -36,6 +39,11 @@
         }else{
             if(!isPhone($phone)){
                 $errors['phone']['invalid'] = "Số điện thoại không hợp lệ";
+            }else{
+                $userPhone = getOne("SELECT id FROM user WHERE phone = :phone", ['phone' => $phone]);
+                if($userPhone){
+                    $errors['phone']['exists'] = "Số điện thoại đã được sử dụng";
+                }
             }
         }
 

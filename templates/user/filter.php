@@ -19,10 +19,12 @@ $username = getSession('username');
 $id = getSession('id');
 
 // Lấy dữ liệu lọc từ Session
-$where = getSession("filter_where") ?? "WHERE transaction.user_id = :user_id";
+$where = getSession("filter_where") ?? "WHERE transaction.user_id = :user_id AND transaction.is_archived = 0";
 $params = getSession("filter_params") ?? ['user_id' => $id];
 $oldInputs = getSession("filter_oldInputs") ?? [];
-$totalResults = getSession("filter_total") ?? 0;
+$sqlCount = "SELECT COUNT(*) as cnt FROM transaction JOIN category ON category.id = transaction.category_id $where";
+$countResult = getOne($sqlCount, $params);
+$totalResults = $countResult ? (int)$countResult['cnt'] : 0;
 
 // Pagination Logic
 $limit = 5;
@@ -90,15 +92,24 @@ $message_type = getFlashData("message_type");
                     <input type="text" name="description" placeholder="Mô tả..." class="filter-input"
                            value="<?= $oldInputs['description'] ?? '' ?>">
 
+                    <input type="number" name="price_min" placeholder="Số tiền từ..." class="filter-input" min="0" step="1000"
+                           value="<?= $oldInputs['price_min'] ?? '' ?>">
+
+                    <input type="number" name="price_max" placeholder="Số tiền đến..." class="filter-input" min="0" step="1000"
+                           value="<?= $oldInputs['price_max'] ?? '' ?>">
+
                     <input type="hidden" name="id" value="<?= $id ?>">
-                    <button type="submit" class="filter-btn-submit" name="filter-btn">Lọc</button>
-                    <button type="submit" class="filter-btn-reset" name="filter-reset-btn">Xóa lọc</button>
+
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="submit" class="filter-btn-submit" name="filter-btn">Lọc</button>
+                        <button type="submit" class="filter-btn-reset" name="filter-reset-btn">Xóa lọc</button>
+                    </div>
                 </form>
             </div>
 
             <?php if(!empty($message)) echo showMessage($message, $message_type); ?>
 
-            <form action="?template=user&action=delete" method="POST" id="formDelete" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+            <form action="?template=user&action=delete&page=<?= $currentPage ?>" method="POST" id="formDelete" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
                 <div class="card filter-result-card">
                     <div class="filter-toolbar">
                         <h3>Kết quả (<?= count($filterTransaction) ?>)</h3>

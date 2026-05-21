@@ -97,6 +97,7 @@ $message_type = getFlashData("message_type");
                             <th class="filter-th" style="text-align:center;">Icon</th>
                             <th class="filter-th">Tên danh mục</th>
                             <th class="filter-th text-center">Số lần sử dụng</th>
+                            <th class="filter-th text-center">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,14 +106,21 @@ $message_type = getFlashData("message_type");
                         foreach ($categoryList as $cat): 
                             $count++;
                         ?>
-                            <tr class="filter-tr">
+                            <tr class="filter-tr" id="row-<?= $cat['id'] ?>">
                                 <td class="filter-td"><?= $count ?></td>
-                                <td class="filter-td" style="text-align:center; font-size:24px;"><?= $cat['icon'] ?? '📦' ?></td>
-                                <td class="filter-td"><?= htmlspecialchars($cat['name']) ?></td>
+                                <td class="filter-td" style="text-align:center; font-size:24px;" id="icon-display-<?= $cat['id'] ?>"><?= htmlspecialchars($cat['icon'] ?? '📦') ?></td>
+                                <td class="filter-td" id="name-display-<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></td>
                                 <td class="filter-td text-center">
                                     <span class="status-badge" style="background: #e1f5fe; color: #0288d1; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
                                         <?= number_format($cat['usage_count']) ?> lần
                                     </span>
+                                </td>
+                                <td class="filter-td text-center">
+                                    <button type="button"
+                                            onclick="openEditRow(<?= $cat['id'] ?>, '<?= htmlspecialchars(addslashes($cat['name'])) ?>', '<?= htmlspecialchars(addslashes($cat['icon'] ?? '📦')) ?>')"
+                                            style="background:#3498db; color:#fff; border:none; border-radius:6px; padding:5px 12px; cursor:pointer; font-size:13px;">
+                                        ✏️ Sửa
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -125,3 +133,45 @@ $message_type = getFlashData("message_type");
 </div>
 
 <?php layout("footer", ["js" => ["pages/sidebar"]]); ?>
+
+<!-- Modal sửa danh mục -->
+<div id="editModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:28px 32px; width:360px; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+        <h3 style="margin:0 0 18px; color:#333;">Sửa danh mục</h3>
+        <form action="?template=admin&action=categories" method="POST">
+            <input type="hidden" name="edit_id" id="edit_id">
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#666; margin-bottom:5px; text-transform:uppercase;">Icon</label>
+                <input type="text" name="edit_icon" id="edit_icon" maxlength="5"
+                       style="width:60px; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:22px; text-align:center; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:12px; font-weight:600; color:#666; margin-bottom:5px; text-transform:uppercase;">Tên danh mục</label>
+                <input type="text" name="edit_name" id="edit_name" required
+                       style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:15px; box-sizing:border-box;">
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" onclick="closeEditModal()"
+                        style="padding:8px 18px; border:1px solid #ddd; border-radius:6px; background:#f5f5f5; cursor:pointer;">Hủy</button>
+                <button type="submit" name="edit_category"
+                        style="padding:8px 18px; border:none; border-radius:6px; background:#3498db; color:#fff; font-weight:700; cursor:pointer;">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditRow(id, name, icon) {
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_icon').value = icon;
+    var modal = document.getElementById('editModal');
+    modal.style.display = 'flex';
+}
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+</script>
