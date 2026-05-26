@@ -3,17 +3,22 @@ if (!CODE) {
     die('Bạn không có quyền truy cập vào trang này');
 }
 
-layout("header", [
-    "title" => "Thêm Chi Tiêu",
-    "css" => ["layout/sidebar", "pages/user/add"]
-]);
 $view = 'add';
-$data = getAll("SELECT * FROM category ORDER BY id");
 $loginToken = getSession('loginToken');
 if (empty($loginToken)) {
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+$data = getAll("SELECT * FROM category ORDER BY id");
+layout("header", [
+    "title" => "Thêm Chi Tiêu",
+    "css" => ["layout/sidebar", "pages/user/add"]
+]);
+
 
 $username = getSession('username');
 $errors = getFlashData("errors");
@@ -206,7 +211,7 @@ if (!empty($transactionSuccess)):
 
             <div class="action-buttons">
                 <button onclick="location.reload()" class="btn-primary-action">Thêm giao dịch khác</button>
-                <button onclick="location.href='?template=user&action=dashboard'" class="btn-secondary-action">Xem dashboard</button>
+                <button onclick="location.href='?template=user&action=dashboard'" class="btn-secondary-action">Đến trang chủ</button>
             </div>
         </div>
     </div>

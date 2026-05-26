@@ -22,6 +22,8 @@ $loginToken = getSession('loginToken');
 
   <div class="sidebar-footer">
     <a href="?template=user&action=profile" class="<?= ($view == 'profile') ? 'active' : '' ?>">👤 Profile</a>
-    <a href="?template=auth&action=logout&token=<?= $loginToken ?>" class="logout-link">↪ Đăng xuất</a>
+    <form method="POST" action="?template=auth&action=logout" style="display:inline">
+      <button type="submit" class="logout-link" style="background:none;border:none;cursor:pointer;font-size:14px;padding:10px 0;width:100%;text-align:left;color:#b91c1c;">↪ Đăng xuất</button>
+    </form>
   </div>
 </aside>

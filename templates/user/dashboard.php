@@ -3,10 +3,6 @@ if (!CODE) {
     die('Bạn không có quyền truy cập vào trang này');
 }
 
-layout("header", [
-    "title" => "Quản Lý Chi Tiêu",
-    "css" => ["layout/sidebar", "pages/user/dashboard"]
-]);
 $view = 'dashboard';
 
 $loginToken = getSession('loginToken');
@@ -14,13 +10,22 @@ if (empty($loginToken)) {
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
+layout("header", [
+    "title" => "Quản Lý Chi Tiêu",
+    "css" => ["layout/sidebar", "pages/user/dashboard"]
+]);
+
 
 $username = getSession('username');
 $user = getOne(
     "SELECT user.id FROM user JOIN logintoken ON user.id = logintoken.user_id WHERE loginToken = :loginToken",
     ["loginToken" => $loginToken]
 );
-setSession("id", $user['id']);
 
 $archivedCount = archiveExpiredTransactions($user['id']);
 cleanupNotifications();
@@ -97,24 +102,24 @@ $currentBalance = $totalIncome - $totalExpense;
 
 $needsBalanceWarning = false;
 $balanceWarningMessage = '';
-if ($currentBalance <= 0) {
-    $needsBalanceWarning = true;
-    if ($currentBalance == 0) {
-        $balanceWarningMessage = 'Số dư của bạn đang bằng 0. Bạn có thể nợ tối đa 1.000.000đ.';
-    } else {
-        $balanceWarningMessage = 'Số dư của bạn đang âm ' . number_format(abs($currentBalance), 0, ',', '.') . 'đ.';
-    }
-}
 if ($currentBalance < -1000000) {
+    //  Vi phạm nghiêm trọng (Vượt quá hạn mức nợ 1 triệu)
     $needsBalanceWarning = true;
-    $balanceWarningMessage = 'Số dư đã vượt quá giới hạn âm cho phép.';
+    $balanceWarningMessage = 'Tài khoản của bạn đã vượt quá hạn mức nợ cho phép (Tối đa nợ 1.000.000đ)!';
+
+} elseif ($currentBalance < 0) {
+    // Số dư bị âm nhưng vẫn trong tầm kiểm soát (nợ dưới 1 triệu)
+    $needsBalanceWarning = true;
+    $balanceWarningMessage = 'Số dư của bạn đang âm ' . number_format(abs($currentBalance), 0, ',', '.') . 'đ.';
+
+} elseif ($currentBalance == 0) {
+    // Vừa bằng 0
+    $needsBalanceWarning = true;
+    $balanceWarningMessage = 'Số dư của bạn đang bằng 0. Bạn có thể nợ tối đa 1.000.000đ.';
 }
 
 function sourceLabel($sourceType) {
     switch ($sourceType) {
-        case 'bank_message':
-        case 'pasted_text':
-            return ['Văn bản dán', 'source-badge source-bank'];
         case 'adjustment':
             return ['Chốt sổ', 'source-badge source-adjustment'];
         default:
@@ -278,14 +283,12 @@ function sourceLabel($sourceType) {
                                 <?php endfor; ?>
                             </select>
                         </form>
-                        <a href="?template=user&action=budget" style="font-size:13px; color:#3498db; text-decoration:none; white-space:nowrap;">Quản lý →</a>
                     </div>
                 </div>
 
                 <?php if (!$hasAnyBudget): ?>
                     <div style="padding:16px; text-align:center; color:#999; font-size:14px;">
-                        Chưa có ngân sách cho tháng này. <a href="?template=user&action=budget" style="color:#3498db;">Thiết lập ngân sách →</a>
-                    </div>
+                        Chưa có ngân sách cho tháng này.
                 <?php else: ?>
                     <?php if ($overBudgetCount > 0): ?>
                         <div style="background:#fdeeee; border:1px solid #e74c3c; border-radius:8px; padding:8px 14px; margin-bottom:12px; font-size:13px; color:#c0392b;">

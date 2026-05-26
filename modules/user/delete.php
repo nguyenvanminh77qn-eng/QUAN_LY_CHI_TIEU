@@ -1,10 +1,14 @@
 <?php
 if (!CODE) die('Bạn không có quyền truy cập vào trang này');
 
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn-delete'])) {
     $filterALl = filter();
     $ids = $filterALl['ids'] ?? [];
-    $id = $filterALl['id'];
 
     if (!empty($ids)) {
         // PDO không hỗ trợ bind cả chuỗi "1,2,3" vào IN(:ids)

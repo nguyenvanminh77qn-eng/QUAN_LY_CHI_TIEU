@@ -10,14 +10,16 @@
     $token = $filterAll['reset'] ?? '';
     
     if(empty($token)){
-        setMessage("Link này không tồn tại hoặc hết hạn.", "error");
+        setMessage("Bạn chưa có link để sửa mật khẩu.", "error");
     }else{
         $userByToken = getOne(
-            "SELECT id FROM user WHERE forgotToken = :forgotToken",
+            "SELECT id, forgot_expires FROM user WHERE forgotToken = :forgotToken",
             ['forgotToken' => $token]
         );
         if(!$userByToken){
             setMessage("Link này không tồn tại hoặc hết hạn.", "error");
+        }elseif (!empty($userByToken['forgot_expires']) && strtotime($userByToken['forgot_expires']) <= time()) {
+            setMessage("Link reset mật khẩu đã hết hạn. Vui lòng yêu cầu lại.", "error");
         }else{
             $tokenValid = true;
         }
@@ -41,8 +43,8 @@
         <a href="#">Pricing</a>
     </nav>
     <div class="auth-buttons">
-        <a href="<?= _WEB_ROOT ?>?template=auth&action=login" class="sign-in-link">Sign In</a>
-        <a href="<?= _WEB_ROOT ?>?template=auth&action=register" class="btn-get-started">Get Started</a>
+        <a href="<?= _WEB_ROOT ?>?template=auth&action=login.view" class="sign-in-link">Sign In</a>
+        <a href="<?= _WEB_ROOT ?>?template=auth&action=register.view" class="btn-get-started">Get Started</a>
     </div>
 </header>
 
@@ -95,7 +97,7 @@
                 </form>
 
                 <div class="back-to-login">
-                    <a href="<?= _WEB_ROOT ?>?template=auth&action=login">
+                    <a href="<?= _WEB_ROOT ?>?template=auth&action=login.view">
                         <span class="material-symbols-outlined back-icon">arrow_back</span>
                         Back to login
                     </a>

@@ -1,28 +1,37 @@
 <?php
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
+
+// Nếu đã đăng nhập thì chuyển hướng vào dashboard tương ứng
+if(!empty(getSession('loginToken'))){
+    $role = getSession('role');
+    if($role == 'admin'){
+        redirect('?template=admin&action=dashboard');
+    }else{
+        redirect('?template=user&action=dashboard');
+    }
+}
+
 layout("header", [
-    "title" => "Chào mừng tới MoneyMaster",
+    "title" => "MoneyMaster - Quản Lý Chi Tiêu",
     "css" => ["pages/home/welcome"]
 ]);
 ?>
 
-<div class="welcome-container">
-    <div class="welcome-content">
-        <div class="brand-logo animate-fade-in">MoneyMaster</div>
-        <h1 class="animate-slide-up">Làm chủ dòng tiền của bạn</h1>
-        <p class="animate-slide-up-delay">Giải pháp quản lý chi tiêu cá nhân thông minh, đơn giản và hiệu quả nhất.</p>
-        
-        <div class="action-buttons animate-fade-in-delayed">
-            <a href="?template=auth&action=login.view" class="btn btn-outline">Đăng nhập</a>
-            <a href="?template=auth&action=register.view" class="btn btn-solid">Đăng ký ngay</a>
+<main class="welcome-container">
+    <div class="welcome-content animate-slide-up">
+        <div class="brand-logo">MoneyMaster</div>
+        <h1>Quản Lý Chi Tiêu</h1>
+        <p>Theo dõi thu chi, lập ngân sách và kiểm soát tài chính cá nhân một cách dễ dàng.</p>
+        <div class="action-buttons">
+            <a href="?template=auth&action=login.view" class="btn btn-solid">Đăng nhập</a>
+            <a href="?template=auth&action=register.view" class="btn btn-outline">Đăng ký</a>
         </div>
     </div>
-    
-    <footer class="welcome-footer animate-fade-in-delayed">
-        &copy; <?= date('Y') ?> MoneyMaster • Ổn định tài chính cho mọi nhà.
-    </footer>
-</div>
+    <div class="welcome-footer animate-fade-in-delayed">
+        &copy; 2026 MoneyMaster. All rights reserved.
+    </div>
+</main>
 
 <?php
-layout("footer");
+layout("footer", ["js" => []]);
 ?>

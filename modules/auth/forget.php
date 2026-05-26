@@ -21,7 +21,7 @@
                 $updateUser = update("user", $updateData, "id = :id", ['id' => $user['id']]);
                 if($updateUser){
                     $content = "Vui lòng click vào link này để reset mật khẩu <br>";
-                    $content.=_WEB_HOST."?template=auth&action=reset.view&reset=".$forgotToken;
+                    $content.=_WEB_ROOT."?template=auth&action=reset.view&reset=".$forgotToken;
                     $result = sendMail($user['email'], "Reset mật khẩu", $content);
                     if($result){
                         setMessage("Vui lòng kiểm tra email để reset mật khẩu", "success");

@@ -1,10 +1,6 @@
 <?php
 if (!CODE) die('Bạn không có quyền truy cập vào trang này');
 
-layout("header", [
-    "title" => "Ngân sách danh mục",
-    "css" => ["layout/sidebar", "pages/user/filter"]
-]);
 $view = 'budget';
 
 $loginToken = getSession('loginToken');
@@ -12,6 +8,15 @@ if (empty($loginToken)) {
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
+layout("header", [
+    "title" => "Ngân sách danh mục",
+    "css" => ["layout/sidebar", "pages/user/filter"]
+]);
 
 $userId = getSession('id');
 $username = getSession('username');

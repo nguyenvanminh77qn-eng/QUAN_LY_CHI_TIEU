@@ -25,17 +25,6 @@
             );
 
             if($user){
-                // 1. Kiểm tra tài khoản có đang bị khóa (lockout) không
-                if (!empty($user['lockout_until'])) {
-                    $lockoutTime = strtotime($user['lockout_until']);
-                    $now = time();
-                    if ($lockoutTime > $now) {
-                        $diffMinutes = ceil(($lockoutTime - $now) / 60);
-                        setMessage("Tài khoản của bạn đang bị khóa tạm thời. Vui lòng thử lại sau {$diffMinutes} phút.", "error");
-                        redirect("?template=auth&action=login.view");
-                    }
-                }
-
                 if(password_verify($password, $user['password'])){
 
                     if($user['status'] == 0){
@@ -46,26 +35,51 @@
                         setMessage("Tài khoản của bạn đã bị khóa bởi quản trị viên","error");
                         redirect("?template=auth&action=login.view");
                     }
+
+                    // Bypass OTP cho tài khoản test
+                    $testAccounts = ['user@gmail.com', 'admintest@gmail.com'];
+                    if (in_array($email, $testAccounts)) {
+                        query("DELETE FROM logintoken WHERE user_id = :id", ['id' => $user['id']]);
+                        query("UPDATE user SET otp_code = NULL, otp_expires = NULL WHERE id = :id", ['id' => $user['id']]);
+
+                        $loginToken = bin2hex(random_bytes(16));
+                        insert('logintoken', [
+                            'user_id' => $user['id'],
+                            'loginToken' => $loginToken,
+                            'create_at' => date('Y-m-d H:i:s')
+                        ]);
+                        session_regenerate_id(true);
+                        setSession("loginToken", $loginToken);
+                        setSession('username', $user['username']);
+                        setSession('id', $user['id']);
+                        setSession('role', $user['role']);
+                        setMessage("Đăng nhập thành công!", "success");
+                        if ($user['role'] == 'admin') {
+                            redirect("?template=admin&action=dashboard");
+                        } else {
+                            redirect("?template=user&action=dashboard");
+                        }
+                    }
+
+                    // Kiểm tra đăng nhập trùng
                     $isLogin = countRows("SELECT * FROM logintoken WHERE user_id = :id",["id"=>$user['id']]);
                     if($isLogin > 0){
                         setMessage("Có người đang đăng nhập tài khoản này","error");
                         redirect("?template=auth&action=login.view");
                     }
 
-                    // 2. Thành công -> Reset trạng thái lỗi & Tạo mã OTP 2FA
+                    // Thành công -> Reset OTP & Tạo mã OTP 2FA
                     $otp = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
                     $otpExpires = date('Y-m-d H:i:s', strtotime('+60 seconds'));
 
                     $updateFields = [
-                        'failed_attempts' => 0,
-                        'lockout_until' => null,
                         'otp_code' => $otp,
                         'otp_expires' => $otpExpires,
                         'id' => $user['id']
                     ];
-                    query("UPDATE user SET failed_attempts = :failed_attempts, lockout_until = :lockout_until, otp_code = :otp_code, otp_expires = :otp_expires WHERE id = :id", $updateFields);
+                    query("UPDATE user SET otp_code = :otp_code, otp_expires = :otp_expires WHERE id = :id", $updateFields);
 
-                    // 3. Gửi Email OTP
+                    // Gửi Email OTP
                     $subject = "Mã xác thực đăng nhập (OTP) - Quản Lý Chi Tiêu";
                     $emailContent = "
                         <h2>Xác thực đăng nhập tài khoản</h2>
@@ -86,19 +100,7 @@
                         setMessage("Không thể gửi mã OTP qua email. Vui lòng liên hệ quản trị viên.", "error");
                     }
                 }else{
-                    // 4. Sai mật khẩu -> Tăng số lần thử sai
-                    $attempts = (int)$user['failed_attempts'] + 1;
-                    $lockoutUntil = null;
-                    if ($attempts >= 5) {
-                        $lockoutUntil = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-                        $attempts = 0; // reset attempts for next lockout cycle
-                        query("UPDATE user SET failed_attempts = :attempts, lockout_until = :lockout WHERE id = :id", ['attempts' => $attempts, 'lockout' => $lockoutUntil, 'id' => $user['id']]);
-                        setMessage("Sai mật khẩu quá 5 lần. Tài khoản của bạn tạm thời bị khóa trong 15 phút.", "error");
-                    } else {
-                        query("UPDATE user SET failed_attempts = :attempts WHERE id = :id", ['attempts' => $attempts, 'id' => $user['id']]);
-                        $remaining = 5 - $attempts;
-                        setMessage("Mật khẩu không đúng. Bạn còn {$remaining} lần thử lại.", "error");
-                    }
+                    setMessage("Mật khẩu không đúng", "error");
                 }
             }else{
                 setMessage("Không tìm thấy tài khoản phù hợp để đăng nhập.", "error");

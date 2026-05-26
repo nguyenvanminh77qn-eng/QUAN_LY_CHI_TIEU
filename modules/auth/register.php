@@ -61,6 +61,7 @@
 
         if(empty($errors)){
             $activeToken = bin2hex(random_bytes(16));
+            $activeExpires = date('Y-m-d H:i:s', strtotime('+24 hours'));
             $now = date("Y-m-d H:i:s");
             $dataInsert = [
                 'username' => $username,
@@ -68,12 +69,13 @@
                 'phone' => $phone,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'activeToken'=>$activeToken,
+                'active_expires'=>$activeExpires,
                 'create_at'=>$now,
                 'update_at'=>$now
             ];
             if(insert('user', $dataInsert)){
-                $content = "Vui lòng click vào link này để kích hoạt tài khoản <br>";
-                $content.=_WEB_HOST."?template=auth&action=active.view&active=".$activeToken;
+                $content = "Vui lòng click vào link này để kích hoạt tài khoản (có hiệu lực 24 giờ):<br>";
+                $content.=_WEB_ROOT."?template=auth&action=active.view&active=".$activeToken;
                 $result =  sendMail($email,"Kích hoạt tài khoản",$content);
                 if($result){
                     setMessage("Đăng ký thành công, vui lòng vào email để kích hoat tài khoản");

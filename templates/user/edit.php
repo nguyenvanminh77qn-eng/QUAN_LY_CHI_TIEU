@@ -3,6 +3,19 @@ if (!CODE) {
     die('Bạn không có quyền truy cập vào trang này');
 }
 
+$view = 'filter';
+
+$loginToken = getSession('loginToken');
+if (empty($loginToken)) {
+    setMessage("Bạn phải đăng nhập", "error");
+    redirect("?template=auth&action=login.view");
+}
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
+
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $userId = getSession('id');
 if ($id <= 0) {
@@ -16,18 +29,13 @@ if (!$transaction) {
     redirect("?template=user&action=filter");
 }
 
+
 $data = getAll("SELECT * FROM category ORDER BY name");
 layout("header", [
     "title" => "Sửa Chi Tiêu",
     "css" => ["layout/sidebar", "pages/user/add", "pages/user/edit"]
 ]);
-$view = 'filter';
 
-$loginToken = getSession('loginToken');
-if (empty($loginToken)) {
-    setMessage("Bạn phải đăng nhập", "error");
-    redirect("?template=auth&action=login.view");
-}
 
 $username = getSession('username');
 $message = getFlashData("message");
@@ -198,6 +206,51 @@ if (!empty($errors)) {
 
             <div class="suspicious-modal-actions" style="margin-top: 25px;">
                 <button type="button" onclick="document.getElementById('errorModal').style.display='none'" class="suspicious-modal-button cancel" style="background: #e0e0e0; color: #333; font-weight: bold; border: none; padding: 12px 30px;">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php
+$transactionSuccess = getFlashData("transaction_success");
+if (!empty($transactionSuccess)):
+    $typeStr = $transactionSuccess['type'] === 'income' ? 'Thu nhập' : 'Chi tiêu';
+    $priceFormatted = number_format($transactionSuccess['price'], 0, ',', '.');
+?>
+    <div class="confirm-popup-overlay">
+        <div class="confirm-popup-content">
+            <div class="success-icon">✅</div>
+            <h2>Cập nhật thành công!</h2>
+            <p class="success-message">Giao dịch đã được cập nhật</p>
+
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <span class="detail-label">LOẠI</span>
+                    <span class="detail-value"><?= $typeStr ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">DANH MỤC</span>
+                    <span class="detail-value"><?= htmlspecialchars($transactionSuccess['category_icon']) ?> <?= htmlspecialchars($transactionSuccess['category_name']) ?></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">SỐ TIỀN</span>
+                    <span class="detail-value amount"><?= $priceFormatted ?>đ</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">NGÀY</span>
+                    <span class="detail-value"><?= htmlspecialchars($transactionSuccess['transaction_date']) ?></span>
+                </div>
+                <?php if (!empty($transactionSuccess['description'])): ?>
+                    <div class="detail-row">
+                        <span class="detail-label">MÔ TẢ</span>
+                        <span class="detail-value"><?= htmlspecialchars($transactionSuccess['description']) ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="location.href='?template=user&action=filter'" class="btn-primary-action">Quay lại danh sách</button>
+                <button onclick="location.href='?template=user&action=dashboard'" class="btn-secondary-action">Xem dashboard</button>
             </div>
         </div>
     </div>

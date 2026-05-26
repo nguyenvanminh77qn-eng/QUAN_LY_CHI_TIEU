@@ -1,6 +1,10 @@
 <?php
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
+if (getSession('role') !== 'admin') {
+    redirect("?template=user&action=dashboard");
+}
+
 if(isset($_POST['btn-change-password'])){
     $filterAll = filter();
     $errors = [];
@@ -37,9 +41,7 @@ if(isset($_POST['btn-change-password'])){
         $user = getOne("SELECT id, password FROM user WHERE id = :id", ['id' => $id]);
         
         if($user){
-            // Kiểm tra mật khẩu cũ
             if(password_verify($old_password, $user['password'])){
-                // Cập nhật mật khẩu mới
                 $hashPassword = password_hash($new_password, PASSWORD_DEFAULT);
                 $updateStatus = update('user', ['password' => $hashPassword], 'id = :id', ['id' => $id]);
                 
@@ -59,6 +61,6 @@ if(isset($_POST['btn-change-password'])){
         setMessage("Vui lòng kiểm tra lại lỗi nhập liệu", "error");
     }
     
-    redirect("?template=user&action=profile");
+    redirect("?template=admin&action=profile");
 }
 ?>

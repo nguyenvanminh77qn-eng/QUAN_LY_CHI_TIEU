@@ -10,8 +10,6 @@ if (getSession('role') !== 'admin') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    cleanupNotifications();
-
     if (isset($_POST['broadcast_notification'])) {
         $filterAll = filter();
         $message    = trim($filterAll['message'] ?? '');
@@ -38,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'type'       => $typeRaw,
                 'expires_at' => date('Y-m-d H:i:s', $expiresAtTimestamp),
                 'is_active'  => 1,
+                'created_by' => (int)getSession('id'),
             ]);
 
             if ($inserted) {

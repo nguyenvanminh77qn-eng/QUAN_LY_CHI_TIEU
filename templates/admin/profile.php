@@ -7,13 +7,13 @@ if(empty($loginToken)){
     setMessage("Bạn phải đăng nhập","error");
     redirect("?template=auth&action=login.view");
 }
-if (getSession('role') !== 'user') {
+if (getSession('role') !== 'admin') {
     setMessage("Bạn không có quyền truy cập trang này", "error");
-    redirect("?template=admin&action=dashboard");
+    redirect("?template=user&action=dashboard");
 }
 
 layout("header", [
-    "title" => "Hồ Sơ Người Dùng",
+    "title" => "Hồ Sơ Quản Trị Viên",
     "css" => ["layout/sidebar","pages/user/profile"]
 ]);
     
@@ -26,18 +26,15 @@ $message_type = getFlashData("message_type");
 $errors = getFlashData("errors");
 ?>
 <div class="app-container">
-    <?php 
-    $sidebar = (getSession('role') == 'admin') ? 'sidebar_admin' : 'sidebar';
-    layout($sidebar, ["view" => $view]); 
-    ?>
+    <?php layout('sidebar_admin', ["view" => $view]); ?>
 
     <main class="main-content">
         <header class="top-header">
             <div class="header-left">
                 <button id="menu-toggle" class="btn-menu" type="button">☰</button>
                 <div>
-                    <span class="subtitle">DIGITAL CURATOR</span>
-                    <h1>Hồ Sơ Người Dùng</h1>
+                    <span class="subtitle">ADMIN PANEL</span>
+                    <h1>Hồ Sơ Quản Trị Viên</h1>
                 </div>
             </div>
             <div class="header-right">
@@ -56,7 +53,7 @@ $errors = getFlashData("errors");
                         <div class="profile-info">
                             <h2 class="profile-name"><?= $user['username'] ?></h2>
                             <p class="profile-email"><?= $user['email'] ?></p>
-                            <span class="profile-role"><?= (getSession('role') == 'admin') ? 'Quản trị viên' : 'Người dùng' ?></span>
+                            <span class="profile-role">Quản trị viên</span>
                         </div>
                     </div>
             
@@ -78,14 +75,13 @@ $errors = getFlashData("errors");
                                 <label class="form-label">SỐ ĐIỆN THOẠI</label>
                                 <input type="tel" class="form-input" placeholder="Nhập số điện thoại của bạn..." value="<?= $user['phone']?>" disabled>
                             </div>
-            
                             
                         </form>
                     </div>
 
                     <div class="card-box profile-form-card" style="margin-top: 20px;">
                         <h3 class="section-title">Đổi mật khẩu</h3>
-                        <form action="?template=user&action=profile" method="POST" id="changePasswordForm" class="profile-form">
+                        <form action="?template=admin&action=profile" method="POST" id="changePasswordForm" class="profile-form">
                             <input type="hidden" name="id" value="<?= $id ?>">
                             <div class="form-group">
                                 <label class="form-label">Mật khẩu hiện tại</label>

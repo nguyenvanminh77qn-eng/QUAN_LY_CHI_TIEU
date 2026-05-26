@@ -1,6 +1,11 @@
 <?php
 if (!CODE) die('Bạn không có quyền truy cập vào trang này');
 
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
 if (isset($_POST['btn-export-csv'])) {
     $filterAll = filter();
     $userId = getSession('id');

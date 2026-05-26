@@ -6,30 +6,7 @@ if (getSession('role') !== 'admin') {
     redirect("?template=user&action=dashboard");
 }
 
-// Thêm danh mục mới
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_category'])) {
-    $filterAll = filter();
-    $name = trim($filterAll['name'] ?? '');
-    $icon = !empty($filterAll['icon']) ? trim($filterAll['icon']) : '🧾';
 
-    if ($name !== '') {
-        $exists = getOne("SELECT id FROM category WHERE name = :name", ['name' => $name]);
-        if ($exists) {
-            setMessage("Tên danh mục đã tồn tại", "error");
-        } else {
-            $insert = insert('category', ['name' => $name, 'icon' => $icon]);
-            if ($insert) {
-                setMessage("Thêm danh mục thành công", "success");
-            } else {
-                setMessage("Thêm danh mục thất bại", "error");
-            }
-        }
-    } else {
-        setMessage("Vui lòng nhập tên danh mục", "error");
-    }
-
-    redirect("?template=admin&action=categories");
-}
 
 // Sửa danh mục
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_category'])) {

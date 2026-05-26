@@ -159,21 +159,28 @@ function archiveExpiredTransactions($userId) {
     return $archivedCount;
 }
 
-function getCurrentBalance($userId, $excludeTransactionId = null) {
-    $excludeCondition = '';
+function getCurrentBalance($userId, $excludeTransactionId = null, $upToDate = null) {
+    $conditions = ["user_id = :id", "is_archived = 0"];
     $params = ['id' => $userId];
 
     if ($excludeTransactionId !== null) {
-        $excludeCondition = ' AND transaction.id != :exclude_id';
+        $conditions[] = "transaction.id != :exclude_id";
         $params['exclude_id'] = $excludeTransactionId;
     }
 
+    if ($upToDate !== null) {
+        $conditions[] = "transaction.transaction_date <= :up_to_date";
+        $params['up_to_date'] = $upToDate;
+    }
+
+    $where = implode(' AND ', $conditions);
+
     $incomeResult = getOne(
-        "SELECT COALESCE(SUM(price), 0) as total FROM transaction WHERE user_id = :id AND type = 'income' AND is_archived = 0" . $excludeCondition,
+        "SELECT COALESCE(SUM(price), 0) as total FROM transaction WHERE $where AND type = 'income'",
         $params
     );
     $expenseResult = getOne(
-        "SELECT COALESCE(SUM(price), 0) as total FROM transaction WHERE user_id = :id AND type = 'expense' AND is_archived = 0" . $excludeCondition,
+        "SELECT COALESCE(SUM(price), 0) as total FROM transaction WHERE $where AND type = 'expense'",
         $params
     );
 

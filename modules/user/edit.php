@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['edit_btn'])) {
     redirect('?template=user&action=filter');
 }
 
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
 $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
 $userId = getSession('id');
 if ($id <= 0) {
@@ -42,7 +47,6 @@ if (!empty($result['errors'])) {
 if (!empty($result['warnings']) && !$confirmSuspicious) {
     setFlashData('suspicious_warning', $result['warnings']);
     setFlashData('suspicious_form_data', $data);
-    setMessage('Giao dịch cần xác nhận. Vui lòng xem cảnh báo bên dưới.', 'warning');
     redirect("?template=user&action=edit&id=$id");
 }
 
@@ -57,9 +61,20 @@ $dataUpdate = [
 
 $updateStatus = update('transaction', $dataUpdate, "id = :id AND user_id = :user_id", ['id' => $id, 'user_id' => $userId]);
 if ($updateStatus) {
-    setFlashData('message', 'Cập nhật giao dịch thành công.');
-    setFlashData('message_type', 'success');
-    redirect('?template=user&action=filter');
+$categoryInfo = getOne("SELECT name, icon FROM category WHERE id = :id", ['id' => (int) $categoryId]);
+$catName = $categoryInfo ? $categoryInfo['name'] : 'Không xác định';
+$catIcon = $categoryInfo ? ($categoryInfo['icon'] ?? '📦') : '📦';
+
+setFlashData('transaction_success', [
+    'type' => $type,
+    'price' => $price,
+    'category_name' => $catName,
+    'category_icon' => $catIcon,
+    'description' => $description,
+    'transaction_date' => $transactionDate !== '' ? $transactionDate : date('Y-m-d'),
+]);
+
+redirect("?template=user&action=edit&id=$id");
 }
 
 setFlashData('message', 'Lỗi hệ thống, vui lòng thử lại sau.');

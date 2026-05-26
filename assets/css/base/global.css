@@ -28,6 +28,12 @@ body {
   border: 1px solid #fecaca;
 }
 
+.alert-info {
+  color: #1d4ed8;            /* Chữ xanh dương đậm */
+  background-color: #eff6ff; /* Nền xanh dương siêu nhẹ */
+  border: 1px solid #bfdbfe; /* Viền xanh dương vừa phải */
+}
+
 .form-error {
   display: block;
   color: var(--color-danger);

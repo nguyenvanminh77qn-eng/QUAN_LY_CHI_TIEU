@@ -178,10 +178,10 @@ if (!empty($loginToken) && $userRole !== 'admin') {
         <div class="global-toast-shell">
             <div class="global-toast-icon"><?= htmlspecialchars($notificationMeta['toast_icon']) ?></div>
             <div class="global-toast-content">
-                <p class="global-toast-label">Thong bao he thong</p>
+                <p class="global-toast-label">Thông báo hệ thống</p>
                 <p class="global-toast-message"><?= htmlspecialchars($globalNotification['message']) ?></p>
             </div>
-            <button id="global-toast-close" class="global-toast-close" type="button" aria-label="Dong thong bao">&times;</button>
+            <button id="global-toast-close" class="global-toast-close" type="button" aria-label="Đóng thông báo">&times;</button>
         </div>
         <div class="global-toast-progress">
             <span id="global-toast-progress-bar"></span>

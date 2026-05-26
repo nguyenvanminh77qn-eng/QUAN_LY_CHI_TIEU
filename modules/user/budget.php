@@ -6,6 +6,10 @@ if (!$userId) {
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
 
 // Xóa budget danh mục
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_budget'])) {

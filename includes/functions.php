@@ -205,7 +205,7 @@ function renderPagination($totalPages, $currentPage, $urlPrefix) {
 function getNotificationTypeMap() {
     return [
         'info' => [
-            'label' => 'Thong tin',
+            'label' => 'Thông tin',
             'toast_icon' => 'i',
             'admin_bg' => '#e8f4fd',
             'admin_border' => '#3498db',
@@ -214,7 +214,7 @@ function getNotificationTypeMap() {
             'toast_shadow' => 'rgba(52, 152, 219, 0.28)',
         ],
         'warning' => [
-            'label' => 'Canh bao',
+            'label' => 'Cảnh báo',
             'toast_icon' => '!',
             'admin_bg' => '#fff7e6',
             'admin_border' => '#f39c12',
@@ -223,7 +223,7 @@ function getNotificationTypeMap() {
             'toast_shadow' => 'rgba(243, 156, 18, 0.28)',
         ],
         'success' => [
-            'label' => 'Thanh cong',
+            'label' => 'Thành công',
             'toast_icon' => 'OK',
             'admin_bg' => '#eafaf1',
             'admin_border' => '#2ecc71',
@@ -232,7 +232,7 @@ function getNotificationTypeMap() {
             'toast_shadow' => 'rgba(46, 204, 113, 0.28)',
         ],
         'error' => [
-            'label' => 'Khan cap',
+            'label' => 'Khẩn cấp',
             'toast_icon' => '!!',
             'admin_bg' => '#fdeeee',
             'admin_border' => '#e74c3c',
@@ -261,11 +261,12 @@ function getNotificationExpiryTimestamp($notification) {
 
 function getActiveNotification(): ?array {
     $row = getOne(
-        "SELECT id, message, type, expires_at, created_at
-         FROM notifications
-         WHERE is_active = 1
-           AND expires_at > NOW()
-         ORDER BY id DESC
+        "SELECT n.id, n.message, n.type, n.expires_at, n.created_at, n.created_by, u.username as created_by_name
+         FROM notifications n
+         LEFT JOIN user u ON u.id = n.created_by
+         WHERE n.is_active = 1
+           AND n.expires_at > NOW()
+         ORDER BY n.id DESC
          LIMIT 1"
     );
     return $row ?: null;
@@ -273,10 +274,11 @@ function getActiveNotification(): ?array {
 
 function getNotificationHistory(): array {
     return getAll(
-        "SELECT id, message, type, expires_at, is_active, created_at
-         FROM notifications
-         WHERE NOT (is_active = 1 AND expires_at > NOW())
-          ORDER BY id DESC"
+        "SELECT n.id, n.message, n.type, n.expires_at, n.is_active, n.created_at, n.created_by, u.username as created_by_name
+         FROM notifications n
+         LEFT JOIN user u ON u.id = n.created_by
+         WHERE NOT (n.is_active = 1 AND n.expires_at > NOW())
+          ORDER BY n.id DESC"
     );
 }
 
@@ -290,10 +292,9 @@ function cleanupNotifications(): void {
     );
 
     // Bước 2: Xóa các notification có expires_at cũ hơn 7 ngày
-    $cutoff = date('Y-m-d H:i:s', strtotime('-7 days'));
     query(
-        "DELETE FROM notifications WHERE expires_at < :cutoff",
-        ['cutoff' => $cutoff]
+    "DELETE FROM notifications 
+     WHERE DATE_ADD(expires_at, INTERVAL 7 DAY) <= NOW()"
     );
 
     // Bước 3: Enforce constraint — đảm bảo chỉ có tối đa 1 active notification

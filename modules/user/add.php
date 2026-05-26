@@ -7,6 +7,11 @@ if (!isset($_POST['add_btn'])) {
     return;
 }
 
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
 $filterAll = filter();
 $price = !empty($filterAll['price']) ? trim((string) $filterAll['price']) : '';
 $categoryId = !empty($filterAll['category']) ? trim((string) $filterAll['category']) : '';
@@ -37,7 +42,6 @@ if (!empty($result['errors'])) {
 if (!empty($result['warnings']) && !$confirmSuspicious) {
     setFlashData('suspicious_warning', $result['warnings']);
     setFlashData('suspicious_form_data', $data);
-    setMessage('Giao dịch cần xác nhận. Vui lòng xem cảnh báo bên dưới.', 'warning');
     redirect('?template=user&action=add');
 }
 
@@ -66,7 +70,6 @@ if ($insertId) {
         'transaction_date' => $transactionDate !== '' ? $transactionDate : date('Y-m-d'),
     ]);
 
-    setMessage('Giao dịch được thêm thành công.');
     redirect('?template=user&action=add');
 }
 

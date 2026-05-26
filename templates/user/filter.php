@@ -1,19 +1,23 @@
 <?php
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
-layout("header", [
-    "title" => "Lọc Dữ Liệu",
-    "css" => ["layout/sidebar", "pages/user/filter"]
-]);
-
 $view = 'filter';
 
-// Kiểm tra đăng nhập
 $loginToken = getSession('loginToken');
 if(empty($loginToken)){
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
+layout("header", [
+    "title" => "Lọc Dữ Liệu",
+    "css" => ["layout/sidebar", "pages/user/filter"]
+]);
+
 
 $username = getSession('username');
 $id = getSession('id');
@@ -113,7 +117,6 @@ $message_type = getFlashData("message_type");
                 <div class="card filter-result-card">
                     <div class="filter-toolbar">
                         <h3>Kết quả (<?= count($filterTransaction) ?>)</h3>
-                        <input type="hidden" name="id" value="<?= $id ?>">
                         <button type="submit" class="filter-btn-delete" name="btn-delete">
                             🗑️ Xóa các mục đã chọn
                         </button>

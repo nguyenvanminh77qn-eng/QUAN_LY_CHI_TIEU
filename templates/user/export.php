@@ -1,11 +1,6 @@
 <?php
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
-layout("header", [
-    "title" => "Xuất Dữ Liệu",
-    "css" => ["layout/sidebar", "pages/user/export"]
-]);
-
 $view = 'export';
 
 $loginToken = getSession('loginToken');
@@ -13,6 +8,16 @@ if(empty($loginToken)){
     setMessage("Bạn phải đăng nhập", "error");
     redirect("?template=auth&action=login.view");
 }
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
+layout("header", [
+    "title" => "Xuất Dữ Liệu",
+    "css" => ["layout/sidebar", "pages/user/export"]
+]);
+
 
 $username = getSession('username');
 $id = getSession('id');
@@ -51,7 +56,6 @@ $message_type = getFlashData("message_type");
                     <?php if(!empty($message)) echo showMessage($message, $message_type); ?>
 
                     <form action="?template=user&action=export" method="POST" class="export-form">
-                        <input type="hidden" name="id" value="<?= $id ?>">
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">TỪ NGÀY</label>

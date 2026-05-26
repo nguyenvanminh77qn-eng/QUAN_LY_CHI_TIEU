@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['reconcile_btn'])) {
     redirect('?template=user&action=dashboard');
 }
 
+if (getSession('role') !== 'user') {
+    setMessage("Bạn không có quyền truy cập trang này", "error");
+    redirect("?template=admin&action=dashboard");
+}
+
 $filterAll = filter();
 $userId = getSession('id');
 $reconciliationDate = !empty($filterAll['reconciliation_date']) ? trim((string) $filterAll['reconciliation_date']) : date('Y-m-d');
@@ -24,7 +29,7 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $reconciliationDate)) {
 }
 
 $actualBalance = (float) $actualBalanceRaw;
-$systemBalance = getCurrentBalance($userId);
+$systemBalance = getCurrentBalance($userId, null, $reconciliationDate);
 $differenceAmount = $actualBalance - $systemBalance;
 $adjustmentTransactionId = null;
 
@@ -44,13 +49,15 @@ $reconciliationId = insertGetId('reconciliation', [
 ]);
 
 if ($reconciliationId) {
+    $msg = '✅ Chốt sổ ngày ' . date('d/m/Y', strtotime($reconciliationDate))
+        . ' | Số dư thực tế: ' . number_format($actualBalance, 0, ',', '.') . 'đ'
+        . ' | Hệ thống: ' . number_format($systemBalance, 0, ',', '.') . 'đ'
+        . ' | Chênh lệch: ' . number_format($differenceAmount, 0, ',', '.') . 'đ';
     if (abs($differenceAmount) < 1) {
-        setMessage('Chốt sổ thành công. Số dư hệ thống đã khớp với số dư thực tế.', 'success');
+        setMessage($msg . ' — Số dư đã khớp.', 'success');
     } else {
-        setMessage(
-            'Đã chốt sổ và tạo giao dịch điều chỉnh ' . number_format(abs($differenceAmount), 0, ',', '.') . 'đ để đồng bộ số dư.',
-            'success'
-        );
+        $msg .= ' → Đã tạo giao dịch điều chỉnh ' . number_format(abs($differenceAmount), 0, ',', '.') . 'đ.';
+        setMessage($msg, 'success');
     }
 } else {
     setMessage('Không thể chốt sổ lúc này. Vui lòng thử lại sau.', 'error');

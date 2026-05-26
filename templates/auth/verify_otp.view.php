@@ -55,7 +55,6 @@ $message_type = getFlashData("message_type");
 (function() {
     var COOLDOWN = 60;
     var resendBtn = document.getElementById('btn-resend');
-    var resendCountdownEl = document.getElementById('resend-countdown');
     var verifyBtn = document.getElementById('btn-verify');
     var otpInput = document.getElementById('otp');
     var alertArea = document.getElementById('alert-area');
@@ -72,7 +71,6 @@ $message_type = getFlashData("message_type");
         resendBtn.disabled = true;
 
         function tick() {
-            if (resendCountdownEl) resendCountdownEl.textContent = countdownValue;
             resendBtn.innerHTML = 'Gửi lại OTP (<span id="resend-countdown">' + countdownValue + '</span>s)';
 
             if (countdownValue <= 0) {

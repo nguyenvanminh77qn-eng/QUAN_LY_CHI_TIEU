@@ -23,6 +23,7 @@
             $updateData = [
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'forgotToken' => null,
+                'forgot_expires' => null,
                 'update_at' => date("Y-m-d H:i:s")
             ];  
             $updatedQuery = update("user", $updateData, "forgotToken = :forgotToken", ['forgotToken' => $reset]);

@@ -8,9 +8,9 @@
 
 - ✅ Thêm, sửa, xóa giao dịch chi tiêu
 - ✅ Tìm kiếm và lọc giao dịch theo tiêu chí
-- ✅ Thêm nhanh giao dịch bằng AI suggestion
-- ✅ Xuất dữ liệu giao dịch ra file (CSV/Excel)
-- ✅ Quản lý tài khoản (cập nhật profile, đổi mật khẩu)
+- ✅ Đặt ngân sách chi tiêu cho từng danh mục,từng tháng
+- ✅ Xuất dữ liệu giao dịch ra file theo thời gian,theo loại,theo danh mục (CSV/Excel)
+- ✅ Quản lý tài khoản (đổi mật khẩu)
 
 ### Dành cho Quản Trị Viên
 
@@ -21,7 +21,7 @@
 
 ### Bảo Mật
 
-- ✅ Xác thực người dùng (Đăng ký, Đăng nhập, Kích hoạt tài khoản qua email)
+- ✅ Xác thực người dùng (Đăng ký, Đăng nhập(Gửi mã otp để xác thực), Kích hoạt tài khoản qua email)
 - ✅ Quên mật khẩu & Đặt lại mật khẩu qua email
 - ✅ Login token để đảm bảo phiên làm việc an toàn
 - ✅ Kiểm soát quyền truy cập theo vai trò (Role-based Access Control)
@@ -112,7 +112,7 @@ APP_NAME=Quản Lý Chi Tiêu
 
 ---
 
-## 📁 Cấu Trúc Thư Mục
+## 📁 Cấu Trúc Thư Mục(phiên bản trước đó , có thể có cập nhật phiên bản mới)
 
 ```
 QUAN_LY_CHI_TIEU/
