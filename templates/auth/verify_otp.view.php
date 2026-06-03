@@ -3,51 +3,87 @@ if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
 layout("header", [
     "title" => "Xác thực OTP",
-    "css" => ["pages/auth/login"]
+    "css" => ["pages/auth/verify-otp", "pages/auth/auth-entrance"]
 ]);
 
 $message = getFlashData("message");
 $message_type = getFlashData("message_type");
 ?>
 
-<main class="login-container">
-    <header class="login-header">
-        <h1 class="login-header__title">Xác thực OTP</h1>
-    </header>
-
-    <div id="alert-area">
-        <?php if(!empty($message)): ?>
-            <?php echo showMessage($message, $message_type); ?>
-        <?php endif; ?>
+<main class="otp-page auth-page">
+    <div class="otp-deco" aria-hidden="true">
+        <svg viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="370" cy="50" r="80" fill="#0d9488" opacity="0.05"/>
+            <circle cx="50" cy="370" r="60" fill="#38bdf8" opacity="0.04"/>
+            <g transform="translate(340, 80)" style="animation: otpDecoBob 4s ease-in-out infinite">
+                <path d="M0 0 L5 -14 L10 0 L24 5 L10 10 L5 24 L0 10 L-14 5 Z" fill="#0d9488" opacity="0.2"/>
+            </g>
+            <g transform="translate(30, 60)" style="animation: otpDecoBob 4.5s ease-in-out infinite 0.5s">
+                <path d="M0 0 L4 -10 L8 0 L18 4 L8 8 L4 18 L0 8 L-10 4 Z" fill="#f59e0b" opacity="0.15"/>
+            </g>
+            <g transform="translate(380, 360)" style="animation: otpDecoBob 5s ease-in-out infinite 1s">
+                <path d="M0 0 L3 -8 L6 0 L14 3 L6 6 L3 14 L0 6 L-8 3 Z" fill="#38bdf8" opacity="0.15"/>
+            </g>
+            <g transform="translate(60, 300)" style="animation: otpDecoBob 3.5s ease-in-out infinite 0.8s">
+                <path d="M0 0 L3 -8 L6 0 L14 3 L6 6 L3 14 L0 6 L-8 3 Z" fill="#10b981" opacity="0.12"/>
+            </g>
+            <g transform="translate(260, 20)">
+                <circle cx="0" cy="0" r="3" fill="#0d9488" opacity="0.25"
+                    style="animation: otpDotPulse 2s ease-in-out infinite"/>
+            </g>
+            <g transform="translate(380, 180)">
+                <circle cx="0" cy="0" r="4" fill="#38bdf8" opacity="0.2"
+                    style="animation: otpDotPulse 2.5s ease-in-out infinite 0.3s"/>
+            </g>
+            <g transform="translate(20, 180)">
+                <circle cx="0" cy="0" r="3" fill="#f59e0b" opacity="0.2"
+                    style="animation: otpDotPulse 1.8s ease-in-out infinite 0.6s"/>
+            </g>
+        </svg>
     </div>
-
-    <div class="login-card">
-        <p style="text-align: center; margin-bottom: 20px; color: #555;">
-            Một mã OTP gồm 6 chữ số đã được gửi tới email của bạn. Vui lòng nhập mã để hoàn tất đăng nhập.
-        </p>
-
-        <form class="login-form" id="verify-form">
-            <div class="form-group">
-                <label for="otp" class="form-group__label">Mã OTP</label>
-                <input type="text" id="otp" class="form-group__input" placeholder="123456" name="otp" required maxlength="6" pattern="\d{6}" style="text-align: center; font-size: 24px; letter-spacing: 5px;" inputmode="numeric" autocomplete="one-time-code">
+    <div class="otp-container">
+        <div class="otp-card auth-entrance-scale auth-e-1">
+            <div class="otp-header auth-entrance auth-e-2">
+                <div class="otp-icon">
+                    <span class="material-symbols-outlined">verified_user</span>
+                </div>
+                <h1>Xác thực OTP</h1>
+                <p>Một mã OTP gồm 6 chữ số đã được gửi tới email của bạn.<br>Vui lòng nhập mã để hoàn tất đăng nhập.</p>
             </div>
 
-            <button type="submit" class="btn btn--primary" id="btn-verify">Xác nhận</button>
-        </form>
+            <div id="alert-area" class="auth-entrance auth-e-3">
+                <?php if(!empty($message)): ?>
+                    <?php echo showMessage($message, $message_type); ?>
+                <?php endif; ?>
+            </div>
 
-        <div class="divider" style="margin-top: 20px;"></div>
+            <form class="otp-form" id="verify-form">
+                <div class="otp-input-wrapper auth-entrance auth-e-4">
+                    <input type="text" id="otp" placeholder="000000" name="otp" required maxlength="6" pattern="\d{6}" inputmode="numeric" autocomplete="one-time-code">
+                </div>
 
-        <div style="text-align: center; margin-top: 16px;">
-            <button type="button" id="btn-resend" class="btn btn--primary" style="background: #95a5a6; padding: 10px 24px; border: none; border-radius: 6px; color: #fff; font-weight: 600; cursor: pointer; font-size: 14px;" disabled>
+                <button type="submit" class="btn-otp auth-entrance auth-e-5" id="btn-verify">
+                    <span>Xác nhận</span>
+                    <span class="material-symbols-outlined" style="font-size:18px">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="otp-divider auth-entrance auth-e-6">
+                <span>Không nhận được mã?</span>
+            </div>
+
+            <button type="button" id="btn-resend" class="btn-resend auth-entrance auth-e-7" disabled>
+                <span class="material-symbols-outlined" style="font-size:18px">refresh</span>
                 Gửi lại OTP (<span id="resend-countdown">60</span>s)
             </button>
+
+            <div class="otp-footer auth-entrance auth-e-8">
+                <a href="?template=auth&action=login.view">
+                    <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+                    Quay lại Đăng nhập
+                </a>
+            </div>
         </div>
-
-        <div class="divider" style="margin-top: 20px;"></div>
-
-        <p style="text-align: center; font-size: 14px;">
-            <a href="?template=auth&action=login.view" class="form-group__link">Quay lại Đăng nhập</a>
-        </p>
     </div>
 </main>
 
@@ -71,11 +107,11 @@ $message_type = getFlashData("message_type");
         resendBtn.disabled = true;
 
         function tick() {
-            resendBtn.innerHTML = 'Gửi lại OTP (<span id="resend-countdown">' + countdownValue + '</span>s)';
+            resendBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px">refresh</span> Gửi lại OTP (<span id="resend-countdown">' + countdownValue + '</span>s)';
 
             if (countdownValue <= 0) {
                 resendBtn.disabled = false;
-                resendBtn.innerHTML = 'Gửi lại OTP';
+                resendBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px">refresh</span> Gửi lại OTP';
                 countdownTimer = null;
                 return;
             }
@@ -85,10 +121,9 @@ $message_type = getFlashData("message_type");
         tick();
     }
 
-    // Gửi lại OTP (AJAX)
     resendBtn.addEventListener('click', function() {
         resendBtn.disabled = true;
-        resendBtn.innerHTML = 'Đang gửi...';
+        resendBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px">refresh</span> Đang gửi...';
 
         var formData = new FormData();
         formData.append('btn-resend-otp', '1');
@@ -105,11 +140,10 @@ $message_type = getFlashData("message_type");
                 showAlert(data.message, 'success');
             } else {
                 showAlert(data.message, 'error');
-                // Khôi phục nút nếu lỗi
                 var s = countdownValue;
                 if (s <= 0) {
                     resendBtn.disabled = false;
-                    resendBtn.innerHTML = 'Gửi lại OTP';
+                    resendBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px">refresh</span> Gửi lại OTP';
                 } else {
                     startCountdown(s);
                 }
@@ -121,11 +155,10 @@ $message_type = getFlashData("message_type");
         });
     });
 
-    // Xác thực OTP (AJAX)
     document.getElementById('verify-form').addEventListener('submit', function(e) {
         e.preventDefault();
         verifyBtn.disabled = true;
-        verifyBtn.textContent = 'Đang xác thực...';
+        verifyBtn.innerHTML = '<span>Đang xác thực...</span>';
 
         var formData = new FormData();
         formData.append('btn-verify-otp', '1');
@@ -139,7 +172,7 @@ $message_type = getFlashData("message_type");
         .then(function(r) { return r.json(); })
         .then(function(data) {
             verifyBtn.disabled = false;
-            verifyBtn.textContent = 'Xác nhận';
+            verifyBtn.innerHTML = '<span>Xác nhận</span><span class="material-symbols-outlined" style="font-size:18px">arrow_forward</span>';
 
             if (data.success) {
                 showAlert(data.message, 'success');
@@ -150,7 +183,7 @@ $message_type = getFlashData("message_type");
         })
         .catch(function() {
             verifyBtn.disabled = false;
-            verifyBtn.textContent = 'Xác nhận';
+            verifyBtn.innerHTML = '<span>Xác nhận</span><span class="material-symbols-outlined" style="font-size:18px">arrow_forward</span>';
             showAlert('Lỗi kết nối. Vui lòng thử lại.', 'error');
         });
     });

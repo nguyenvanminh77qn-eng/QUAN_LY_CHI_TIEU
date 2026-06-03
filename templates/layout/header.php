@@ -26,9 +26,11 @@ if (!empty($loginToken) && $userRole !== 'admin') {
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <script>(function(){var t=localStorage.getItem('theme');var tmpl='<?= $_GET['template'] ?? '' ?>';if(tmpl==='auth'||tmpl==='user')t='light';if(tmpl==='admin')t='dark';var html=document.documentElement;if(t==='dark'||t==='light'){html.setAttribute('data-theme',t);}html.style.backgroundColor=t==='dark'?'#0c0a09':'#f0fdfa';document.addEventListener('DOMContentLoaded',function(){var app=document.querySelector('.app-container');if(app&&t){app.setAttribute('data-theme',t);}});})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($title) ? $title : 'Quan ly chi tieu' ?></title>
     <link rel="stylesheet" href="<?= _CSS ?>main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <?php
@@ -38,6 +40,7 @@ if (!empty($loginToken) && $userRole !== 'admin') {
         }
     }
     ?>
+    <link rel="stylesheet" href="<?= _CSS ?>themes.css?v=<?= time() ?>">
     <style>
         @keyframes slideInRight {
             from { transform: translate3d(120%, 0, 0); opacity: 0; }

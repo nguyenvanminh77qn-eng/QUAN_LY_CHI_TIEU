@@ -1,254 +1,935 @@
 @import url("dashboard.css");
 
-/* Lọc: khoảng cách giữa thẻ bộ lọc và kết quả */
-.filter-page .page-content>.card+.card {
-    margin-top: 24px;
+/* Filter page layouts */
+.filter-page .page-content > .card + .card {
+  margin-top: 24px;
 }
 
-/* Các styles được tách từ filter.php */
+/* Action buttons (Edit & Delete in User pages) */
 .action-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 5px;
-    margin: 0 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  margin: 0 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background-color: #f1f5f9;
+  transform: scale(1.1);
 }
 
 .action-btn.edit {
-    color: #3498db;
+  color: var(--color-primary);
+}
+.action-btn.edit:hover {
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-light);
 }
 
 .action-btn.delete {
-    color: #e74c3c;
+  color: var(--color-danger);
+}
+.action-btn.delete:hover {
+  color: #b91c1c;
+  background-color: #fef2f2;
 }
 
+/* =========================================
+   ADMIN USER MANAGER TABLE STYLING
+========================================= */
+
+/* Override Role Badges (Admin vs User) */
+.filter-td span[style*="background: #e67e22"],
+.filter-td span[style*="background: orange"] {
+  background: linear-gradient(135deg, var(--color-admin) 0%, var(--color-admin-dark) 100%) !important;
+  color: white !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
+  display: inline-block;
+}
+
+.filter-td span[style*="background: #3498db"] {
+  background: linear-gradient(135deg, var(--color-user) 0%, var(--color-user-light) 100%) !important;
+  color: white !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.2);
+  display: inline-block;
+}
+
+/* Override Status Pill Badges (Green: Active/Online) */
+.filter-td span[style*="color: green"] {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Override Status Pill Badges (Red: Blocked/Inactive) */
+.filter-td span[style*="color: red"] {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Override Status Pill Badges (Orange: Pending) */
+.filter-td span[style*="color: orange"] {
+  background-color: #fffbeb !important;
+  color: #d97706 !important;
+  border: 1px solid #fde68a !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Override Status Pill Badges (Grey: Offline) */
+.filter-td span[style*="color: #666"] {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Override Action Buttons in User Manager Table */
+.filter-td button.action-btn.status {
+  padding: 6px 14px !important;
+  border-radius: var(--radius-md) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  transition: all var(--transition-normal) !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  border: none !important;
+  text-decoration: none !important;
+}
+
+/* Lock Button */
+.filter-td button.action-btn.status[title="Khóa tài khoản"] {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fca5a5 !important;
+}
+.filter-td button.action-btn.status[title="Khóa tài khoản"]:hover {
+  background-color: #dc2626 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+}
+
+/* Unlock / Activate Button */
+.filter-td button.action-btn.status[title="Mở khóa"],
+.filter-td button.action-btn.status[title="Kích hoạt hộ"] {
+  background-color: #d1fae5 !important;
+  color: #059669 !important;
+  border: 1px solid #6ee7b7 !important;
+}
+.filter-td button.action-btn.status[title="Mở khóa"]:hover,
+.filter-td button.action-btn.status[title="Kích hoạt hộ"]:hover {
+  background-color: #059669 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.2);
+}
+
+/* =========================================
+   ADMIN CATEGORIES PAGE CUSTOM STYLING
+========================================= */
+
+/* usage badge */
+.filter-td span.status-badge[style*="background: #e1f5fe"] {
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+  padding: 6px 14px !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-block !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Edit Category button in table */
+.filter-td button[onclick*="openEditRow"] {
+  background: var(--color-primary-light) !important;
+  color: var(--color-primary) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-md) !important;
+  padding: 6px 14px !important;
+  cursor: pointer !important;
+  font-weight: 750 !important;
+  font-size: 13px !important;
+  transition: all var(--transition-normal) !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-td button[onclick*="openEditRow"]:hover {
+  background: var(--color-primary) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25);
+}
+
+/* Category Add & Search Section cards */
+.add-section, .search-section {
+  background: var(--color-surface);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+.add-section:hover, .search-section:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-admin-light);
+}
+
+/* Admin category card overrides */
+.app-container:has(.admin-sidebar) .add-section,
+.app-container:has(.admin-sidebar) .search-section {
+  background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.8));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(31, 41, 55, 0.8);
+}
+
+.app-container:has(.admin-sidebar) .add-section:hover,
+.app-container:has(.admin-sidebar) .search-section:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.add-section h3, .search-section h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+/* Category Add inputs */
+.category-icon-input {
+  width: 56px !important;
+  height: 44px !important;
+  padding: 4px !important;
+  text-align: center !important;
+  font-size: 24px !important;
+  border-radius: var(--radius-md) !important;
+  border: 2px dashed var(--color-border) !important;
+  background: rgba(255,255,255,0.5) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-normal) !important;
+  outline: none !important;
+  letter-spacing: 2px;
+}
+.category-icon-input:focus {
+  border-color: var(--color-admin) !important;
+  border-style: solid !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15) !important;
+}
+.category-icon-input:hover {
+  background: #fff !important;
+  border-color: var(--color-admin-light) !important;
+}
+.app-container:has(.admin-sidebar) .category-icon-input {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(212, 168, 67, 0.3) !important;
+}
+.app-container:has(.admin-sidebar) .category-icon-input:focus {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: var(--color-admin) !important;
+  border-style: solid !important;
+}
+.app-container:has(.admin-sidebar) .category-icon-input:hover {
+  border-color: var(--color-admin-light) !important;
+}
+
+.add-section input[name="name"],
+.search-section input[name="keyword"] {
+  height: 42px !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-border) !important;
+  background-color: #f8fafc !important;
+  transition: all var(--transition-normal) !important;
+}
+.add-section input[name="name"]:focus,
+.search-section input[name="keyword"]:focus {
+  border-color: var(--color-admin) !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15) !important;
+  background-color: #ffffff !important;
+}
+
+/* Admin glass inputs */
+.app-container:has(.admin-sidebar) .add-section input,
+.app-container:has(.admin-sidebar) .search-section input {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(31, 41, 55, 0.9) !important;
+  color: var(--color-text-main) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.app-container:has(.admin-sidebar) .add-section input:focus,
+.app-container:has(.admin-sidebar) .search-section input:focus {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: var(--color-admin) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12), inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.add-section button[name="add_category"],
+.search-section button[type="submit"] {
+  height: 42px !important;
+  border-radius: var(--radius-md) !important;
+  background: linear-gradient(135deg, var(--color-admin) 0%, var(--color-admin-dark) 100%) !important;
+  font-weight: 750 !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+  transition: all var(--transition-normal) !important;
+  border: none !important;
+  cursor: pointer !important;
+  position: relative;
+  overflow: hidden;
+}
+.add-section button[name="add_category"]:hover,
+.search-section button[type="submit"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
+}
+
+.add-section button[name="add_category"]::after,
+.search-section button[type="submit"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 50%);
+  pointer-events: none;
+}
+
+/* Edit Modal popup override */
+div[id="editModal"] {
+  backdrop-filter: blur(4px);
+  animation: fadeIn var(--transition-normal);
+}
+div[id="editModal"] > div {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 32px !important;
+  animation: slideUp var(--transition-slow);
+}
+div[id="editModal"] h3 {
+  font-weight: 850 !important;
+  font-size: 18px !important;
+  letter-spacing: -0.02em;
+  color: var(--color-text-main) !important;
+}
+div[id="editModal"] input {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-border) !important;
+  background-color: #f8fafc !important;
+  outline: none !important;
+  transition: all var(--transition-normal) !important;
+}
+div[id="editModal"] input:focus {
+  border-color: var(--color-admin) !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15) !important;
+}
+div[id="editModal"] button[type="button"] {
+  border-radius: var(--radius-md) !important;
+  padding: 10px 20px !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--color-border) !important;
+  background: #ffffff !important;
+  color: var(--color-text-muted) !important;
+  transition: all var(--transition-normal) !important;
+}
+div[id="editModal"] button[type="button"]:hover {
+  background: #f8fafc !important;
+  color: var(--color-text-main) !important;
+  transform: translateY(-1px);
+}
+div[id="editModal"] button[type="submit"] {
+  border-radius: var(--radius-md) !important;
+  padding: 10px 20px !important;
+  font-weight: 750 !important;
+  border: none !important;
+  background: var(--color-admin) !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15) !important;
+  transition: all var(--transition-normal) !important;
+}
+div[id="editModal"] button[type="submit"]:hover {
+  background: var(--color-admin-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(249, 115, 22, 0.25) !important;
+}
+
+/* =========================================
+   USER FILTERS PAGE STYLING
+========================================= */
+
+/* Inline filter form layout */
 .filter-form-inline {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .filter-input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-main);
+  background-color: #f8fafc;
+  outline: none;
+  transition: all var(--transition-normal);
+}
+
+.filter-input:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .filter-btn-submit {
-    border: none;
-    outline: none;
-    padding: 8px 30px;
-    font-weight: bold;
-    font-size: 16px;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    background-color: #3498db;
-    transition: .25s ease;
+  border: none;
+  outline: none;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
+  transition: all var(--transition-normal);
+  cursor: pointer;
 }
 
 .filter-btn-submit:hover {
-    filter: brightness(90%);
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.25);
+}
+
+.filter-btn-submit:active {
+  transform: translateY(0);
 }
 
 .filter-btn-reset {
-    padding: 8px 16px;
-    border: none;
-    outline: none;
-    font-weight: 600;
-    font-size: 14px;
-    color: #555;
-    text-decoration: none;
-    border-radius: 4px;
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
-    transition: .2s ease;
-    cursor: pointer;
-    white-space: nowrap;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .filter-btn-reset:hover {
-    background-color: #dee2e6;
-    color: #333;
+  background-color: #f1f5f9;
+  color: var(--color-text-main);
+  transform: translateY(-2px);
+}
+
+.filter-btn-reset:active {
+  transform: translateY(0);
 }
 
 .filter-result-card {
-    padding: 0;
-    overflow: hidden;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  position: relative;
+  transition: box-shadow var(--transition-normal);
+  overflow: visible;
+}
+
+/* Table wrapper — keeps rounded bottom corners */
+.filter-table-wrapper {
+  position: relative;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.filter-result-card:hover {
+  box-shadow: 0 8px 28px rgba(13, 148, 136, 0.08);
 }
 
 .filter-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-    flex-wrap: wrap;
-    gap: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Skeleton loading for result card */
+.filter-result-card .skeleton-row td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-container:has(.admin-sidebar) .filter-toolbar {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.6) 0%, rgba(17, 24, 39, 0.3) 100%);
 }
 
 .filter-toolbar h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: bold;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 850;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-toolbar h3::before {
+  content: 'search';
+  font-family: 'Material Symbols Outlined';
+  font-size: 20px;
+  color: var(--color-primary);
+  font-weight: 400;
+}
+
+/* Toolbar left group (title + arrows) */
+.filter-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Prev / Next arrows — absolute over table edges */
+.filter-arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.filter-arrow {
+  position: absolute;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  transition: all var(--transition-fast);
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.filter-arrow--prev {
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.filter-arrow--next {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.filter-arrow:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.filter-arrow:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.app-container:has(.admin-sidebar) .filter-arrow {
+  background: #2a2520;
+  border-color: #3a322a;
+  color: #c0b0a0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.app-container:has(.admin-sidebar) .filter-arrow:hover {
+  background: var(--color-admin);
+  border-color: var(--color-admin);
+  color: #1a1512;
+}
+
+/* Fade + slide down for table tbody — data flows from top to bottom */
+
+@keyframes fadeSlideDown {
+  0% { opacity: 0; transform: translateY(-24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.filter-tbody.fade-scale-in {
+  animation: fadeSlideDown 0.4s cubic-bezier(0.15, 0.85, 0.35, 1) both;
+}
+
+.filter-tbody.fade-scale-in {
+  animation: fadeScaleIn 0.4s cubic-bezier(0.15, 0.85, 0.35, 1) both;
 }
 
 .filter-btn-delete {
-    padding: 8px 16px;
-    background: #e74c3c;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    transition: background 0.2s;
+  padding: 10px 20px;
+  background: var(--color-danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-btn-delete::before {
+  font-family: 'Material Symbols Outlined';
+  content: 'delete';
+  font-size: 16px;
 }
 
 .filter-btn-delete:hover {
-    background: #c0392b;
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
 }
 
+.filter-btn-delete:active {
+  transform: translateY(0);
+}
+
+.app-container:has(.admin-sidebar) .filter-btn-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.2);
+}
+
+.app-container:has(.admin-sidebar) .filter-btn-delete:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+}
+
+/* Results data table styling */
 .filter-data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
 }
 
 .filter-thead {
-    background: #f8f9fa;
+  background: #f8fafc;
 }
 
 .filter-th {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 2px solid #ddd;
-    font-weight: 600;
-    color: #333;
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 2px solid var(--color-border);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .filter-th.text-right {
-    text-align: right;
+  text-align: right;
 }
 
 .filter-th.text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .filter-tr {
-    border-bottom: 1px solid #eee;
-    transition: background 0.2s;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-tr:last-child {
+  border-bottom: none;
 }
 
 .filter-tr:hover {
-    background: #fafafa;
+  background: rgba(13, 148, 136, 0.03);
+}
+
+.app-container:has(.admin-sidebar) .filter-tr:hover {
+  background: rgba(212, 168, 67, 0.04);
 }
 
 .filter-td {
-    padding: 15px;
-    color: #333;
+  transition: none;
+}
+
+.filter-td {
+  padding: 16px 20px;
+  color: var(--color-text-main);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .filter-td.category {
-    font-weight: 500;
+  font-weight: 600;
 }
 
 .filter-td.desc {
-    color: #666;
+  color: var(--color-text-muted);
 }
 
 .filter-td.income {
-    text-align: right;
-    color: #2ecc71;
-    font-weight: bold;
+  text-align: right;
+  color: var(--color-success);
+  font-weight: 700;
 }
 
 .filter-td.expense {
-    text-align: right;
-    color: #e74c3c;
-    font-weight: bold;
+  text-align: right;
+  color: var(--color-danger);
+  font-weight: 700;
 }
 
 .filter-td.text-center {
-    text-align: center;
+  text-align: center;
 }
 
 .filter-empty-state {
-    padding: 30px;
-    text-align: center;
-    color: #999;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: 15px;
+  position: relative;
 }
 
-/* Styles separated from filter.php inline attributes */
+.filter-empty-state::before {
+  content: 'inbox';
+  font-family: 'Material Symbols Outlined';
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+  color: var(--color-border);
+  opacity: 0.5;
+}
+
+/* Subtle active notification badge style */
+.active-notif-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+}
+
+/* Page content padding fix for admin */
+.app-container:has(.admin-sidebar) .page-content {
+  padding-top: 20px;
+}
+
 .filter-page .page-content {
-    padding-top: 20px;
+  padding-top: 20px;
 }
 
 .filter-form-card {
-    margin-bottom: 20px;
+  margin-bottom: 24px;
+  transition: box-shadow var(--transition-normal);
+}
+
+.filter-form-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Filter form inline enhancements */
+.filter-form-inline {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-form-inline .filter-input {
+  flex: 1;
+  min-width: 140px;
+  transition: all var(--transition-normal);
+}
+
+.filter-form-inline .filter-input:focus {
+  transform: translateY(-1px);
 }
 
 .filter-separator {
-    color: #777;
+  color: var(--color-text-muted);
 }
 
 .filter-th.action-col {
-    width: 100px;
+  width: 110px;
 }
 
 .filter-th.checkbox-col {
-    width: 40px;
+  width: 50px;
 }
 
-/* --- Category Badge (icon + name) --- */
+/* Category Badge (icon + name) */
 .category-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #f0f6ff;
-    border: 1px solid #d0e4ff;
-    border-radius: 20px;
-    padding: 4px 12px 4px 8px;
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary-light);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
 }
 
-.category-badge__icon {
-    font-size: 18px;
-    line-height: 1;
+.app-container:has(.admin-sidebar) .category-badge {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.15);
 }
 
-.category-badge__name {
-    color: var(--color-text-main);
-}
-
-/* --- Edit Button (replaces emoji link) --- */
+/* Edit actions */
 .btn-action-edit {
-    display: inline-block;
-    padding: 5px 14px;
-    background: #eaf4ff;
-    color: #1a6fbb;
-    border: 1px solid #b3d6f5;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+}
+
+.btn-action-edit::before {
+  font-family: 'Material Symbols Outlined';
+  content: 'edit';
+  font-size: 15px;
 }
 
 .btn-action-edit:hover {
-    background: #3498db;
-    color: #fff;
-    border-color: #3498db;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+  background: var(--color-primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+}
+
+.btn-action-edit:active {
+  transform: translateY(0);
+}
+
+/* Admin table header overrides */
+.app-container:has(.admin-sidebar) .filter-thead {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.app-container:has(.admin-sidebar) .filter-data-table {
+  border-color: rgba(31, 41, 55, 0.8);
+}
+
+.app-container:has(.admin-sidebar) .filter-th {
+  color: var(--color-text-muted);
+  border-bottom-color: rgba(31, 41, 55, 0.8);
+}
+
+/* Admin table row bottoms */
+.app-container:has(.admin-sidebar) .filter-tr {
+  border-bottom-color: rgba(31, 41, 55, 0.6);
+}
+
+/* Admin action button edit */
+.app-container:has(.admin-sidebar) .btn-action-edit {
+  background: rgba(212, 168, 67, 0.12);
+  color: #d4a843;
+}
+
+.app-container:has(.admin-sidebar) .btn-action-edit:hover {
+  background: #d4a843;
+  color: #0d0d0d;
+  box-shadow: 0 4px 12px rgba(212, 168, 67, 0.25);
 }

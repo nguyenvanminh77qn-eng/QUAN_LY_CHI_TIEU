@@ -9,6 +9,7 @@
     require_once "includes/database.php";
     require_once "includes/transaction_policy.php";
     require_once "includes/transaction_helpers.php";
+require_once "includes/wallet_helper.php";
 
     // Bảo mật session
     session_set_cookie_params([

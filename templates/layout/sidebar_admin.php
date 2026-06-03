@@ -13,6 +13,7 @@ $loginToken = getSession('loginToken');
     <a href="?template=admin&action=dashboard" class="<?= ($view == 'dashboard') ? 'active' : '' ?>">📊 Tổng quan</a>
     <a href="?template=admin&action=users" class="<?= ($view == 'users') ? 'active' : '' ?>">👥 Quản lý thành viên</a>
     <a href="?template=admin&action=categories" class="<?= ($view == 'categories') ? 'active' : '' ?>">📂 Quản lý danh mục</a>
+    <a href="?template=admin&action=notifications" class="<?= ($view == 'notifications') ? 'active' : '' ?>">🔔 Quản lý thông báo</a>
   </nav>
 
   <div class="sidebar-footer">

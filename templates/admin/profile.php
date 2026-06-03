@@ -14,7 +14,7 @@ if (getSession('role') !== 'admin') {
 
 layout("header", [
     "title" => "Hồ Sơ Quản Trị Viên",
-    "css" => ["layout/sidebar","pages/user/profile"]
+    "css" => ["layout/sidebar","pages/user/profile","pages/admin/theme"]
 ]);
     
 $username = getSession('username');

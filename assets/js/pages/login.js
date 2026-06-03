@@ -7,6 +7,6 @@ document.getElementById('loginForm')?.addEventListener('submit', function() {
         hidden.value = '1';
         this.appendChild(hidden);
         btn.disabled = true;
-        btn.textContent = 'Đang xử lý...';
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;animation:spin 1s linear infinite">refresh</span> Đang xử lý...';
     }
 });

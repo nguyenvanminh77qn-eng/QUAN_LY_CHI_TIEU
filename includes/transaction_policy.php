@@ -9,7 +9,7 @@ const TRANSACTION_RETENTION_DAYS = 365;
 const SUSPICIOUS_BALANCE_RATIO = 0.5;
 const DUPLICATE_WINDOW_MINUTES = 5;
 const RATE_LIMIT_SECONDS = 3;
-const NEGATIVE_BALANCE_LIMIT = -1000000;
+const NEGATIVE_BALANCE_LIMIT = 0;
 const BUDGET_OVERAGE_LIMIT = 1.1; // Cho phép vượt tối đa 110% ngân sách
 
 function validateTransaction($userId, $data, $editingId = null) {
@@ -45,7 +45,8 @@ function validateTransaction($userId, $data, $editingId = null) {
     }
 
     if ($type === 'expense') {
-        $balanceError = checkBalanceSufficient($userId, $price, $editingId);
+        $walletId = (int)($data['wallet_id'] ?? 0);
+        $balanceError = checkBalanceSufficient($userId, $price, $editingId, $walletId > 0 ? $walletId : null);
         if ($balanceError !== null) {
             $errors['balance'] = $balanceError;
             return ['valid' => false, 'errors' => $errors, 'warnings' => $warnings];
@@ -159,7 +160,11 @@ function archiveExpiredTransactions($userId) {
     return $archivedCount;
 }
 
-function getCurrentBalance($userId, $excludeTransactionId = null, $upToDate = null) {
+function getCurrentBalance($userId, $excludeTransactionId = null, $upToDate = null, $walletId = null) {
+    if ($walletId > 0) {
+        return getWalletBalance($walletId, $userId, $excludeTransactionId);
+    }
+
     $conditions = ["user_id = :id", "is_archived = 0"];
     $params = ['id' => $userId];
 
@@ -190,16 +195,21 @@ function getCurrentBalance($userId, $excludeTransactionId = null, $upToDate = nu
     return $income - $expense;
 }
 
-function checkBalanceSufficient($userId, $price, $editingId = null) {
-    $balance = getCurrentBalance($userId, $editingId);
+function checkBalanceSufficient($userId, $price, $editingId = null, $walletId = null) {
+    if ($walletId > 0) {
+        $balance = getWalletBalance($walletId, $userId, $editingId);
+    } else {
+        $balance = getCurrentBalance($userId, $editingId);
+    }
     $balanceAfter = $balance - $price;
 
     if ($balanceAfter < NEGATIVE_BALANCE_LIMIT) {
+        $deficit = abs($balanceAfter);
         $balanceFormatted = number_format($balance, 0, ',', '.');
         $priceFormatted = number_format($price, 0, ',', '.');
-        $limitFormatted = number_format(abs(NEGATIVE_BALANCE_LIMIT), 0, ',', '.');
+        $deficitFormatted = number_format($deficit, 0, ',', '.');
 
-        return "Số dư hiện tại: {$balanceFormatted}đ. Giao dịch {$priceFormatted}đ sẽ vượt quá giới hạn âm cho phép (-{$limitFormatted}đ). Vui lòng thêm thu nhập hoặc giảm số tiền.";
+        return "deficit|{$deficit}|Số dư hiện tại: {$balanceFormatted}đ. Giao dịch {$priceFormatted}đ sẽ khiến bạn âm {$deficitFormatted}đ.";
     }
 
     return null;

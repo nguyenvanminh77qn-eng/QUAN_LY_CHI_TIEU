@@ -1,0 +1,164 @@
+/* =========================================
+   SAVINGS FUND PAGE
+========================================= */
+
+.fund-hero {
+  text-align: center;
+  background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+  border-radius: var(--radius-xl);
+  padding: 40px 28px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.fund-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(244,63,94,0.08), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.fund-hero-icon {
+  font-size: 56px;
+  margin-bottom: 8px;
+  animation: fund-bounce 2s ease-in-out infinite;
+}
+
+@keyframes fund-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.fund-hero-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c2185b;
+  margin-bottom: 6px;
+}
+
+.fund-hero-balance {
+  font-size: 42px;
+  font-weight: 900;
+  color: #880e4f;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+}
+
+.fund-hero-desc {
+  font-size: 14px;
+  color: #ad1457;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ── Action cards ── */
+.fund-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.fund-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-normal);
+}
+
+.fund-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.fund-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin: 0 0 6px;
+}
+
+.fund-card-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.fund-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fund-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  transition: all var(--transition-normal);
+  background: var(--bg-color);
+  color: var(--color-text-main);
+  box-sizing: border-box;
+}
+
+.fund-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.fund-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+}
+
+.fund-btn--add {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+}
+
+.fund-btn--add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+}
+
+.fund-btn--withdraw {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+.fund-btn--withdraw:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+}
+
+@media (max-width: 767px) {
+  .fund-actions {
+    grid-template-columns: 1fr;
+  }
+  .fund-hero-balance {
+    font-size: 30px;
+  }
+}

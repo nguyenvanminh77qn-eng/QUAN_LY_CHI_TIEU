@@ -83,7 +83,17 @@ function setMessage($message, $type = "success") {
 }
 
 function showMessage($message, $type = "success") {
-    return "<div class='alert alert-$type'>$message</div>";
+    $icons = ['success' => 'check_circle', 'error' => 'error', 'info' => 'info', 'warning' => 'warning'];
+    $icon = $icons[$type] ?? 'info';
+    $id = 'toast-' . uniqid();
+    return <<<HTML
+<div class="toast toast-{$type}" id="{$id}">
+    <span class="toast-icon">{$icon}</span>
+    <span class="toast-msg">{$message}</span>
+    <button class="toast-close" onclick="this.closest('.toast').classList.add('removing');setTimeout(function(){this.closest('.toast').remove()}.bind(this),300)">&times;</button>
+    <div class="toast-bar"></div>
+</div>
+HTML;
 }
 
 function form_error($errors, $field) {
@@ -155,9 +165,12 @@ function sendMail($to, $subject, $content) {
     }
 }
 
-function getTotalSum($id, $type) {
-    $sql = "SELECT SUM(price) as total FROM transaction WHERE type = :type AND user_id = :id AND is_archived = 0";
-    $result = getOne($sql, ["id" => $id, "type" => $type]);
+function getTotalSum($id, $type, $walletId = null) {
+    if ($walletId > 0) {
+        $result = getOne("SELECT SUM(price) as total FROM transaction WHERE type = :type AND user_id = :id AND wallet_id = :wid AND is_archived = 0", ["id" => $id, "type" => $type, "wid" => $walletId]);
+    } else {
+        $result = getOne("SELECT SUM(price) as total FROM transaction WHERE type = :type AND user_id = :id AND is_archived = 0", ["id" => $id, "type" => $type]);
+    }
     return ($result && $result['total']) ? $result['total'] : 0;
 }
 

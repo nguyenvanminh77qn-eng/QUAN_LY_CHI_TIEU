@@ -73,7 +73,9 @@
                 'create_at'=>$now,
                 'update_at'=>$now
             ];
-            if(insert('user', $dataInsert)){
+            $newId = insertGetId('user', $dataInsert);
+            if($newId){
+                createDefaultWallets($newId);
                 $content = "Vui lòng click vào link này để kích hoạt tài khoản (có hiệu lực 24 giờ):<br>";
                 $content.=_WEB_ROOT."?template=auth&action=active.view&active=".$activeToken;
                 $result =  sendMail($email,"Kích hoạt tài khoản",$content);

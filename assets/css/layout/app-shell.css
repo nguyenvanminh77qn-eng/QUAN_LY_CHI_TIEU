@@ -1,25 +1,4 @@
-/* Khung app có sidebar: dùng chung mọi trang chỉ nạp sidebar + CSS trang con (add, filter, …) */
-
-:root {
-  --bg-color: #f3f5f9;
-  --card-bg: #ffffff;
-  --primary-blue: #0f4a7b;
-  --primary-hover: #0b3659;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --border-color: #e5e7eb;
-  --positive: #059669;
-  --negative: #dc2626;
-
-  --sidebar-width: 250px;
-  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
-  --radius-md: 6px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
+/* --- App Container & Layout --- */
 * {
   margin: 0;
   padding: 0;
@@ -28,8 +7,12 @@
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html {
@@ -40,83 +23,189 @@ html {
 .app-layout {
   display: flex;
   min-height: 100vh;
-  padding: 15px;
-  gap: 20px;
+  padding: 20px;
+  gap: 24px;
   overflow: hidden;
+  background-color: var(--bg-body);
+  transition: background-color var(--transition-smooth), padding var(--transition-normal);
 }
 
+/* --- Main Content Panel --- */
 .main-content {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 10px 20px;
-  height: calc(100vh - 30px);
+  padding: 10px 10px;
+  height: calc(100vh - 40px);
   overflow-y: auto;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  animation: pageFadeIn 0.7s var(--ease-out-expo) both;
+  transition: padding var(--transition-normal), background var(--transition-smooth), border-color var(--transition-smooth);
 }
 
+/* --- Top Header (Shell Header) --- */
 .top-header,
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
-  background-color: var(--card-bg);
-  padding: 15px 25px;
+  margin-bottom: 24px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 18px 28px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
   flex-shrink: 0;
+  transition: all var(--transition-smooth);
+  animation: slideInDown 0.5s var(--ease-out-expo) both;
 }
 
 .header-left,
 .header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
 .subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 10px;
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 2px;
 }
 
 .top-header h1,
 .header-left h1 {
-  font-size: 20px;
-  color: var(--text-main);
-  font-weight: 600;
+  font-size: 22px;
+  color: var(--color-text-main);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
+/* Header dynamic style for Admin */
+.app-container:has(.admin-sidebar) .top-header h1 {
+  background: linear-gradient(135deg, var(--color-admin-light) 0%, var(--color-admin) 50%, var(--color-admin-dark) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Month box / User indicator */
 .month-box,
 .user-box {
-  background: white;
-  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
   padding: 8px 16px;
   border-radius: var(--radius-md);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--color-text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
 }
 
-.user-box i {
-  color: var(--primary-blue);
-  margin-right: 5px;
+.user-box {
+  background: var(--color-primary-light);
+  border-color: transparent;
+  color: var(--color-primary);
 }
 
+/* Admin specific user box styling */
+.app-container:has(.admin-sidebar) .user-box {
+  background: linear-gradient(135deg, var(--color-admin), var(--color-admin-dark));
+  color: #1a1512 !important;
+  font-weight: 750;
+  border: none;
+  box-shadow: 0 4px 14px rgba(212, 168, 67, 0.25);
+  transition: all var(--transition-normal);
+}
+
+.app-container:has(.admin-sidebar) .user-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(212, 168, 67, 0.35);
+}
+
+/* Admin top-header premium */
+.app-container:has(.admin-sidebar) .top-header {
+  background: linear-gradient(145deg, var(--card-bg), rgba(34, 32, 28, 0.85));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.app-container:has(.admin-sidebar) .top-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.1), transparent);
+}
+
+/* --- Control Buttons (Toggle / Icons) --- */
 .btn-menu,
 .btn-icon {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 8px 12px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
   cursor: pointer;
-  color: var(--text-main);
-  transition: background-color 0.2s ease-in-out;
+  color: var(--color-text-main);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
 }
 
 .btn-menu:hover,
 .btn-icon:hover {
-  background-color: #f3f4f6;
+  background-color: var(--color-primary-light);
+  border-color: transparent;
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.btn-menu:active,
+.btn-icon:active {
+  transform: translateY(0);
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .app-container,
+  .app-layout {
+    padding: 12px;
+    gap: 12px;
+  }
+  .main-content {
+    padding: 5px 5px;
+    height: calc(100vh - 24px);
+  }
+  .top-header,
+  .header {
+    padding: 14px 20px;
+    margin-bottom: 16px;
+  }
+  .top-header h1,
+  .header-left h1 {
+    font-size: 18px;
+  }
 }

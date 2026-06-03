@@ -2,155 +2,236 @@
    EDIT EXPENSE STYLES
 ========================================= */
 
-/* =========================================
-   GIAO DIỆN FORM SỬA CHI TIÊU
-========================================= */
+@keyframes editFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .edit-expense-card {
-  background-color: #ffffff;
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   width: 100%;
-  max-width: 650px; /* Khống chế độ rộng để form không bị bè ra hai bên */
-  border-radius: 8px;
-  padding: 35px 40px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); /* Đổ bóng cực nhẹ giống ảnh */
+  max-width: 650px;
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-smooth);
+  animation: editFadeUp 0.5s var(--ease-out-expo) forwards;
+  position: relative;
+}
+
+.edit-expense-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  opacity: 0.3;
+}
+
+.edit-expense-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
 }
 
 .edit-card-title {
   font-size: 20px;
-  font-weight: bold;
-  color: #111;
-  margin-bottom: 25px;
+  font-weight: 850;
+  color: var(--color-text-main);
+  margin-bottom: 28px;
+  letter-spacing: -0.02em;
 }
 
 .edit-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .edit-form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  animation: editFadeUp 0.4s var(--ease-out-expo) backwards;
 }
+.edit-form-group:nth-child(1) { animation-delay: 0.05s; }
+.edit-form-group:nth-child(2) { animation-delay: 0.1s; }
+.edit-form-group:nth-child(3) { animation-delay: 0.15s; }
+.edit-form-group:nth-child(4) { animation-delay: 0.2s; }
+.edit-form-group:nth-child(5) { animation-delay: 0.25s; }
 
 .edit-form-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #111;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .edit-form-input,
 .edit-form-textarea {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 14px;
-  color: #333;
+  color: var(--color-text-main);
+  background: var(--color-surface);
   outline: none;
   font-family: inherit;
-  transition: border-color 0.2s;
+  transition: all var(--transition-normal);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .edit-form-input:focus,
 .edit-form-textarea:focus {
-  border-color: #3b82f6; /* Xanh dương khi bấm vào ô chữ */
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .edit-form-textarea {
-  resize: vertical; /* Cho phép kéo dài chiều dọc */
-  min-height: 80px;
+  resize: vertical;
+  min-height: 90px;
 }
 
-/* Khu vực Nút Radio */
 .edit-radio-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
   margin-top: 4px;
 }
 
 .radio-label {
   font-size: 14px;
-  color: #333;
+  color: var(--color-text-main);
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.radio-label:hover {
+  color: var(--color-primary);
 }
 
 .radio-label input[type="radio"] {
   cursor: pointer;
-  width: 15px;
-  height: 15px;
-  accent-color: #3b82f6; /* Nút radio chuyển xanh khi chọn */
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
 }
 
-/* Khu vực Nút bấm Lưu / Hủy */
 .edit-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 15px;
+  margin-top: 20px;
+  animation: editFadeUp 0.4s var(--ease-out-expo) backwards;
+  animation-delay: 0.3s;
 }
 
-.btn-cancel {
-  background-color: #f3f4f6; /* Nền xám nhạt */
-  color: #374151; /* Chữ xám đậm */
-  border: none;
-  padding: 10px 24px;
-  border-radius: 4px;
+.btn-cancel,
+.btn-edit-cancel {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-.btn-cancel:hover {
-  background-color: #e5e7eb;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-.btn-save {
-  background-color: #2563eb; /* Màu xanh đậm giống ảnh */
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.btn-save:hover {
-  background-color: #1d4ed8;
+.btn-cancel:hover,
+.btn-edit-cancel:hover {
+  background: var(--hover-bg);
+  color: var(--color-text-main);
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
 }
 
-/* Các classes tách từ inline Sửa (edit.php) */
+.btn-save,
+.btn-edit-submit {
+  background: var(--color-primary) !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 28px !important;
+  border-radius: var(--radius-md) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all var(--transition-smooth) !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.btn-save:hover,
+.btn-edit-submit:hover {
+  background: var(--color-primary-hover) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3) !important;
+}
+
+.btn-save:active,
+.btn-edit-submit:active {
+  transform: translateY(-1px) !important;
+}
+
 .expense-card__tag--edit {
-  background: #f39c12; 
+  background: var(--color-warning); 
   color: white; 
-  padding: 5px 10px; 
-  border-radius: 4px; 
-  font-weight: bold; 
-  font-size: 12px;
+  padding: 4px 10px; 
+  border-radius: var(--radius-sm); 
+  font-weight: 750; 
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
 }
 
 .edit-error {
-  color: red;
-  font-size: 13px;
-  margin-top: 5px;
+  color: var(--color-danger);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
   display: block;
 }
 
-.btn-edit-submit {
-  background: #3498db !important;
-}
-.btn-edit-submit:hover {
-  background: #2980b9 !important;
+@media (max-width: 768px) {
+  .edit-expense-card {
+    padding: 24px;
+  }
+  .edit-form-actions {
+    flex-direction: column-reverse;
+  }
+  .btn-cancel, .btn-edit-cancel,
+  .btn-save, .btn-edit-submit {
+    width: 100%;
+    justify-content: center;
+  }
+  .edit-radio-group {
+    gap: 16px;
+  }
 }
 
-.btn-edit-cancel {
-  text-decoration: none; 
-  display: inline-block; 
-  text-align: center;
+@media (prefers-reduced-motion: reduce) {
+  .edit-expense-card,
+  .edit-form-group,
+  .edit-form-actions {
+    animation: none;
+  }
 }

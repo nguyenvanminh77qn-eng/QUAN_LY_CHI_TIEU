@@ -1,75 +1,129 @@
+/* =========================================
+   EXPORT DATA PAGE STYLES
+========================================= */
+
 .export-page .page-content {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    padding-top: 20px;
 }
 
 .export-card {
     max-width: 600px;
     width: 100%;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+}
+
+.export-card:hover {
+    box-shadow: var(--shadow-lg);
 }
 
 .export-header {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+}
+
+.export-header h2 {
+    font-size: 22px;
+    font-weight: 850;
+    color: var(--color-text-main);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
 }
 
 .export-desc {
-    color: var(--text-muted, #7f8c8d);
+    color: var(--color-text-muted);
     font-size: 14px;
-    margin-top: 5px;
+    font-weight: 500;
+    line-height: 1.6;
 }
 
 .export-form .form-row {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .export-form .form-group {
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 8px;
 }
 
 .export-form .form-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-color, #2c3e50);
-    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .export-form .form-input {
-    padding: 10px 15px;
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 6px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     font-size: 14px;
-    transition: all 0.3s;
+    font-weight: 500;
+    color: var(--color-text-main);
+    background-color: #f8fafc;
+    outline: none;
+    transition: all var(--transition-normal);
 }
 
 .export-form .form-input:focus {
-    border-color: var(--primary-color, #3498db);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .export-actions {
     text-align: center;
+    margin-top: 8px;
 }
 
 .export-btn {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 750;
     cursor: pointer;
-    background-color: var(--primary-color, #3498db);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
     color: white;
     border: none;
-    border-radius: 6px;
-    transition: background 0.3s;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.export-btn::before {
+    font-family: 'Material Symbols Outlined';
+    content: 'download';
+    font-size: 20px;
 }
 
 .export-btn:hover {
-    background-color: var(--primary-dark, #2980b9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.25);
+}
+
+.export-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .export-form .form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
 }

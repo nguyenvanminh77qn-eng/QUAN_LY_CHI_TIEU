@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS `reconciliation`;
 DROP TABLE IF EXISTS `logintoken`;
 DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `transaction`;
+DROP TABLE IF EXISTS `wallet`;
 DROP TABLE IF EXISTS `budget`;
 DROP TABLE IF EXISTS `monthly_budget`;
 DROP TABLE IF EXISTS `category`;
@@ -38,7 +39,21 @@ CREATE TABLE `user` (
   UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- 2. BẢNG DANH MỤC THU CHI (CATEGORY)
+-- 2. BẢNG VÍ (WALLET)
+CREATE TABLE `wallet` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `icon` varchar(10) DEFAULT '💰',
+  `type` enum('daily','ewallet','target') NOT NULL DEFAULT 'daily',
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `wallet_user_idx` (`user_id`),
+  CONSTRAINT `wallet_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- 3. BẢNG DANH MỤC THU CHI (CATEGORY)
 CREATE TABLE `category` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -57,10 +72,11 @@ INSERT INTO `category` (`id`, `name`, `icon`) VALUES
 (7, 'Điện nước', '⚡'),
 (8, 'Khác', '📝');
 
--- 3. BẢNG GIAO DỊCH (TRANSACTION)
+-- 4. BẢNG GIAO DỊCH (TRANSACTION)
 CREATE TABLE `transaction` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
+  `wallet_id` int DEFAULT NULL,
   `category_id` int NOT NULL,
   `price` float NOT NULL,
   `type` enum('income','expense') NOT NULL,
@@ -75,11 +91,13 @@ CREATE TABLE `transaction` (
   `source_type` varchar(30) NOT NULL DEFAULT 'manual',
   PRIMARY KEY (`id`),
   KEY `transaction_user_idx` (`user_id`),
+  KEY `transaction_wallet_idx` (`wallet_id`),
   KEY `transaction_category_idx` (`category_id`),
   KEY `transaction_user_type_archived_idx` (`user_id`, `type`, `is_archived`),
   KEY `transaction_user_archived_date_idx` (`user_id`, `is_archived`, `transaction_date`),
   KEY `transaction_user_cat_date_idx` (`user_id`, `category_id`, `type`, `is_archived`, `transaction_date`),
   KEY `transaction_created_at_idx` (`create_at`),
+  CONSTRAINT `transaction_wallet_fk` FOREIGN KEY (`wallet_id`) REFERENCES `wallet` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `transaction_category_fk` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
   CONSTRAINT `transaction_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

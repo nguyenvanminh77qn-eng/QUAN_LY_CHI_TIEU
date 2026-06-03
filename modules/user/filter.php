@@ -26,7 +26,7 @@ if (isset($_POST['filter-btn'])) {
         $params['transaction_date'] = $filterALl['transaction_date'];
     }
     if (!empty($filterALl['type'])) {
-        $where .= " AND type = :type";
+        $where .= " AND transaction.type = :type";
         $params['type'] = $filterALl['type'];
     }
     if (!empty($filterALl['category_id'])) {

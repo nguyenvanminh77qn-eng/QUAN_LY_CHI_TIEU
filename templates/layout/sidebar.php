@@ -14,6 +14,8 @@ $loginToken = getSession('loginToken');
     <a href="?template=user&action=budget" class="<?= ($view == 'budget') ? 'active' : '' ?>">Ngân sách</a>
     <a href="?template=user&action=filter" class="<?= ($view == 'filter') ? 'active' : '' ?>">Lọc chi tiêu</a>
     <a href="?template=user&action=export" class="<?= ($view == 'export') ? 'active' : '' ?>">Xuất dữ liệu (CSV)</a>
+    <a href="?template=user&action=wallet" class="<?= ($view == 'wallet') ? 'active' : '' ?>">Quản lý Ví</a>
+    <a href="?template=user&action=savings" class="<?= ($view == 'savings') ? 'active' : '' ?>">Quỹ Tiết Kiệm</a>
   </nav>
 
   <div class="sidebar-action">
