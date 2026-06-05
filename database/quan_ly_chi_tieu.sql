@@ -37,7 +37,7 @@ CREATE TABLE `user` (
   UNIQUE KEY `email_UNIQUE` (`email`),
   UNIQUE KEY `phone_UNIQUE` (`phone`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. BẢNG VÍ (WALLET)
 CREATE TABLE `wallet` (
@@ -60,7 +60,7 @@ CREATE TABLE `category` (
   `icon` varchar(10) DEFAULT '📦',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `category` (`id`, `name`, `icon`) VALUES
 (1, 'Ăn uống', '🍔'),
@@ -100,7 +100,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `transaction_wallet_fk` FOREIGN KEY (`wallet_id`) REFERENCES `wallet` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `transaction_category_fk` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
   CONSTRAINT `transaction_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. BẢNG NGÂN SÁCH DANH MỤC (BUDGET)
 CREATE TABLE `budget` (
@@ -118,7 +118,7 @@ CREATE TABLE `budget` (
   KEY `budget_category_idx` (`category_id`),
   CONSTRAINT `budget_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `budget_category_fk` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. BẢNG TỔNG NGÂN SÁCH THÁNG (MONTHLY_BUDGET)
 CREATE TABLE `monthly_budget` (
@@ -133,7 +133,7 @@ CREATE TABLE `monthly_budget` (
   UNIQUE KEY `mb_unique` (`user_id`, `month`, `year`),
   KEY `mb_user_idx` (`user_id`),
   CONSTRAINT `mb_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. BẢNG ĐỐI CHIẾU CHỐT SỔ (RECONCILIATION)
 CREATE TABLE `reconciliation` (
@@ -151,7 +151,7 @@ CREATE TABLE `reconciliation` (
   KEY `reconciliation_adjustment_idx` (`adjustment_transaction_id`),
   CONSTRAINT `reconciliation_adjustment_fk` FOREIGN KEY (`adjustment_transaction_id`) REFERENCES `transaction` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `reconciliation_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. BẢNG TOKEN ĐĂNG NHẬP (LOGINTOKEN)
 CREATE TABLE `logintoken` (
@@ -163,7 +163,7 @@ CREATE TABLE `logintoken` (
   UNIQUE KEY `loginToken_UNIQUE` (`loginToken`),
   KEY `logintoken_user_idx` (`user_id`),
   CONSTRAINT `logintoken_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 8. BẢNG THÔNG BÁO (NOTIFICATIONS)
 CREATE TABLE `notifications` (
@@ -177,7 +177,7 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`id`),
   KEY `notif_created_by_idx` (`created_by`),
   CONSTRAINT `notif_admin_fk` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- ============================================================
