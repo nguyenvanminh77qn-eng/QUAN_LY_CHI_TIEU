@@ -1,310 +1,156 @@
-# Quản Lý Chi Tiêu - Expense Tracking Application
+# Quản Lý Chi Tiêu
 
-Ứng dụng quản lý chi tiêu cá nhân với hai vai trò: **Người dùng** và **Quản trị viên**.
-
-## Tính Năng Chính
-
-### Dành cho Người Dùng
-
-- Thêm, sửa, xóa giao dịch chi tiêu
-- Tìm kiếm và lọc giao dịch theo tiêu chí
-- Đặt ngân sách chi tiêu cho từng danh mục, từng tháng
-- Xuất dữ liệu giao dịch ra file CSV theo thời gian, loại, danh mục
-- Quản lý tài khoản (đổi mật khẩu)
-- Đối soát tài khoản (reconciliation) — kiểm tra số dư thực tế vs hệ thống
-
-### Dành cho Quản Trị Viên
-
-- Quản lý danh sách người dùng (mở/khóa tài khoản)
-- Xem và quản lý danh mục
-- Gửi thông báo (notification) cho người dùng — mỗi thông báo ghi rõ admin tạo
-- Xem báo cáo thống kê tổng hợp (chart, tổng thu/chi, top danh mục)
-- Quản lý hồ sơ cá nhân, đổi mật khẩu
-
-### Bảo Mật
-
-- Xác thực 2 yếu tố (OTP) qua email khi đăng nhập
-- OTP có hiệu lực 60 giây, gửi lại sau 60 giây
-- Xác thực OTP bằng AJAX — không reload trang, countdown chạy liên tục
-- Giới hạn số lần xác thực OTP sai (5 lần → block 1 phút, tăng dần)
-- Giới hạn số lần gửi lại OTP (5 lần → block)
-- Mã OTP được tạo bằng `random_int()` đảm bảo tính ngẫu nhiên
-- Login token lưu trong database, kiểm tra mỗi request
-- Khi admin khóa user, toàn bộ token bị xóa → user bị đăng xuất ngay lập tức
-- Đăng xuất qua POST (không lộ token trên URL)
-- Session với httponly + SameSite=Strict
-- Prepared statements (PDO) chống SQL injection
-- Role-based access control (RBAC) — user không vào được admin và ngược lại
-- Kiểm tra role cả ở template (GET) lẫn module handler (POST)
-- Password hashing với `password_hash()`
-- Link kích hoạt tài khoản hết hạn sau 24 giờ
-- Link đặt lại mật khẩu hết hạn sau 24 giờ
-
-### Giao Dịch
-
-- Phát hiện giao dịch bất thường (suspicious) — popup cảnh báo trước khi thêm/sửa
-- Giới hạn số giao dịch tối đa mỗi ngày (theo cấu hình)
-- Đối soát số dư — chỉ tính giao dịch đến ngày đối soát
-- Lưu trữ (archive) giao dịch
-
-### Thông Báo (Notification)
-
-- Admin phát thông báo toast đến tất cả user đang online
-- Mỗi thông báo có thời gian hết hạn
-- Tự động dọn dẹp thông báo quá hạn (cleanupNotifications)
-- Chỉ 1 thông báo active tại một thời điểm
-- Lịch sử thông báo hiển thị admin tạo, scroll 290px
-- User chỉ thấy thông báo nếu chưa xem (localStorage)
-
-### Database
-
-- Unique index trên `logintoken.loginToken`
-- Unique index trên `user.email`, `user.username`
-- Khóa ngoại (foreign key) đảm bảo toàn vẹn dữ liệu
-
-
----
+Ứng dụng quản lý chi tiêu cá nhân với hai vai trò: **Người dùng** (user) và **Quản trị viên** (admin).
 
 ## Yêu Cầu Hệ Thống
 
-- **PHP**: 7.2 trở lên
-- **MySQL**: 5.7 trở lên (khuyên dùng 8.0+)
-- **Web Server**: Apache (hoặc tương đương)
-- **Trình duyệt**: Chrome, Firefox, Safari, Edge (phiên bản mới)
+- **PHP**: 7.4 trở lên (khuyên dùng 8.x)
+- **MySQL**: 5.7+ (khuyên dùng 8.0+)
+- **Web Server**: Apache (mod_rewrite bật)
+- **Trình duyệt**: Chrome, Firefox, Edge (phiên bản mới)
 
----
+## Cài Đặt Nhanh
 
-## Cài Đặt
-
-### 1. Clone hoặc tải dự án
+### 1. Clone dự án
 
 ```bash
 git clone https://github.com/username/quan_ly_chi_tieu.git
 cd quan_ly_chi_tieu
 ```
 
-### 2. Cấu hình cơ sở dữ liệu
+### 2. Cấu hình database
 
-**a) Tạo file `.env` từ `.env.example`:**
+Copy file `.env.example` thành `.env` và sửa thông tin:
 
 ```bash
 cp .env.example .env
 ```
 
-**b) Chỉnh sửa file `.env` với thông tin của bạn:**
+Mở file `.env`, sửa các dòng:
 
 ```env
 DB_HOST=localhost
-DB_USER=root
-DB_PASS=your_password
-DB_NAME=quan_ly_chi_tieu
+DB_USER=root              # MySQL user
+DB_PASS=your_password     # MySQL password
+DB_NAME=quan_ly_chi_tieu  # Tên database
 DB_PORT=3306
 ```
 
-### 3. Nhập cơ sở dữ liệu
+### 3. Import database
 
-**Cách 1: Sử dụng phpMyAdmin**
+Tạo database `quan_ly_chi_tieu` trong MySQL, sau đó import:
 
-- Mở phpMyAdmin: `http://localhost/phpmyadmin`
-- Tạo database mới có tên: `quan_ly_chi_tieu`
-- Chọn database → Tab "Import" → Chọn file `database/quan_ly_chi_tieu.sql`
-- Nhấn "Import"
-
-**Cách 2: Sử dụng command line**
-
-```bash
-mysql -h localhost -u root -p quan_ly_chi_tieu < database/quan_ly_chi_tieu.sql
+```
+mysql -h localhost -u root -p quan_ly_chi_tieu < database/database_complete.sql
 ```
 
-### 4. Cấu Hình Email
+Hoặc dùng phpMyAdmin: tạo database → chọn tab Import → chọn file `database/database_complete.sql`.
 
-Để tính năng gửi email (OTP, quên mật khẩu, kích hoạt tài khoản) hoạt động, bạn cần cấu hình SMTP:
+### 4. Chạy ứng dụng
 
-**a) Cập nhật file `.env`:**
+Đặt thư mục dự án vào `htdocs` (XAMPP) hoặc DocumentRoot của Apache.
+
+Truy cập: **http://localhost/QUAN_LY_CHI_TIEU/**
+
+## Tài Khoản Mẫu
+
+Sau khi import database, có sẵn 2 tài khoản test:
+
+| Vai trò | Email | Mật khẩu |
+|---------|-------|----------|
+| Người dùng | `user@gmail.com` | `User@123` |
+| Quản trị viên | `admintest@gmail.com` | `Admin@123` |
+
+Hai tài khoản này được hardcode bỏ qua OTP → đăng nhập thẳng vào dashboard.
+
+## Cấu Hình Email (SMTP)
+
+Tính năng OTP, quên mật khẩu, kích hoạt tài khoản cần SMTP để gửi email.
+
+### Gmail SMTP
+
+Sửa trong file `.env`:
 
 ```env
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
+SMTP_PORT=465
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
-APP_NAME=Quản Lý Chi Tiêu
 ```
 
-**b) Hướng dẫn tạo Gmail App Password:**
+**Tạo App Password cho Gmail:**
+1. Vào https://myaccount.google.com/security → bật **Xác thực 2 bước**
+2. Vào https://myaccount.google.com/apppasswords
+3. Chọn "Mail" → "Windows Computer" → Tạo
+4. Copy 16 ký tự password dán vào `SMTP_PASS`
 
-1. Bật 2-Factor Authentication tại: https://support.google.com/accounts/answer/185833
-2. Truy cập: https://myaccount.google.com/apppasswords
-3. Chọn "Mail" → "Windows Computer"
-4. Sao chép 16 ký tự password, dán vào `SMTP_PASS` trong `.env`
+### Nếu không cấu hình SMTP
 
-**c) Nếu không cấu hình SMTP:**
-
-- Chức năng gửi email sẽ bị vô hiệu hóa
-- Ứng dụng vẫn hoạt động bình thường
-- Tài khoản test (xem bên dưới) không cần email
-
-### 5. Chạy ứng dụng
-
-- Đặt dự án vào thư mục web server của bạn (thường là `htdocs` với XAMPP)
-- Truy cập: `http://localhost/QUAN_LY_CHI_TIEU/`
-
-### 6. Tài Khoản Test (Tùy Chọn)
-
-Nếu muốn dùng tài khoản test (bỏ qua OTP), import thêm file:
-
-```bash
-mysql -h localhost -u root -p quan_ly_chi_tieu < database/migration_test_accounts.sql
-```
-
-- **User**: `user@gmail.com` / `userpassword`
-- **Admin**: `admintest@gmail.com` / `adminpassword`
-
-Có thể import dữ liệu mẫu giao dịch:
-
-```bash
-mysql -h localhost -u root -p quan_ly_chi_tieu < database/migration_sample_data.sql
-```
-
----
+Ứng dụng vẫn chạy bình thường. Email sẽ được ghi log ra file `mail_debug.log` để kiểm tra.
 
 ## Cấu Trúc Thư Mục
 
 ```
 QUAN_LY_CHI_TIEU/
-├── index.php                     # File chính (router)
-├── config.php                    # Cấu hình ứng dụng
-├── .env.example                  # Template file .env
-├── .gitignore
-├── assets/
-│   ├── css/
-│   │   ├── main.css
-│   │   ├── layout/
-│   │   │   └── sidebar.css
-│   │   └── pages/
-│   │       ├── user/
-│   │       │   ├── add.css
-│   │       │   ├── dashboard.css
-│   │       │   ├── edit.css
-│   │       │   ├── export.css
-│   │       │   ├── filter.css
-│   │       │   └── profile.css
-│   │       ├── admin/
-│   │       │   └── dashboard.css
-│   │       └── auth/
-│   │           ├── login.css
-│   │           └── register.css
-│   └── js/pages/
-│       ├── login.js
-│       ├── register.js
-│       ├── dashboard.js
-│       ├── reset.js
-│       ├── forget.js
-│       ├── sidebar.js
-│       ├── user/filter.js
-│       └── admin/dashboard.js
+├── index.php              # Entry point (require src/bootstrap)
+├── .env                   # Cấu hình database + SMTP (KHÔNG commit)
+├── .env.example           # Mẫu .env (commit được)
+│
+├── src/
+│   ├── bootstrap/
+│   │   └── index.php      # Bootloader: load config, core, route
+│   ├── config/
+│   │   └── app.php        # Config constants, loadEnv()
+│   ├── app/
+│   │   ├── Core/          # connect.php, database.php, functions.php, session.php
+│   │   ├── Helpers/       # transaction_helpers, wallet_helper, feedback_helper, monthly_report
+│   │   └── Http/Api/      # AJAX endpoints (chat_poll, feedback)
+│   ├── modules/           # POST handlers (Controllers)
+│   │   ├── auth/          # login, register, logout, OTP, active, forget, reset
+│   │   ├── user/          # add, edit, delete, budget, filter, export, profile, wallet, reconcile
+│   │   └── admin/         # dashboard, categories, users, notifications, profile, reports
+│   └── views/             # GET templates (Views)
+│       ├── layout/        # header, footer, sidebar
+│       ├── auth/          # login, register, OTP, active, forget, reset
+│       ├── user/          # dashboard, add, edit, budget, filter, export, profile, wallet
+│       ├── admin/         # dashboard, categories, users, notifications, reports
+│       └── home/          # welcome page
+│
+├── public/
+│   └── assets/
+│       ├── css/           # base/, layout/, pages/, themes.css, main.css
+│       ├── js/pages/      # JS theo từng page
+│       └── images/        # (trống)
+│
+├── vendor/                # Thư viện (PHPMailer, FPDF)
+│   ├── phpmailer/
+│   └── fpdf/
+│
 ├── database/
-│   ├── quan_ly_chi_tieu.sql      # Schema chính
-├── includes/
-│   ├── connect.php               # Kết nối database
-│   ├── database.php              # Hàm database (query, getOne, getAll, insert, update, delete)
-│   ├── functions.php             # Hàm tiện ích (redirect, setMessage, OTP helpers, notification helpers)
-│   ├── session.php               # Quản lý session
-│   ├── validator.php             # Xác thực dữ liệu
-│   ├── env-loader.php            # Load biến environment
-│   ├── transaction_policy.php    # Chính sách giao dịch (suspicious detection, max per day, balance check)
-│   ├── transaction_helpers.php   # Helper xử lý giao dịch
-│   └── PHPMailer/                # Thư viện gửi email
-├── modules/                      # Xử lý logic (Controllers)
-│   ├── admin/
-│   │   ├── dashboard.php         # Dashboard admin + broadcast notification
-│   │   ├── categories.php        # Quản lý danh mục
-│   │   ├── users.php             # Quản lý thành viên (lock/unlock)
-│   │   └── profile.php           # Hồ sơ admin, đổi mật khẩu
-│   ├── auth/
-│   │   ├── login.php             # Xác thực + tạo OTP
-│   │   ├── verify_otp.php        # Xác thực OTP (AJAX) + rate limiting
-│   │   ├── logout.php            # Đăng xuất (POST-only)
-│   │   ├── register.php          # Đăng ký + gửi email kích hoạt
-│   │   ├── active.php            # Kích hoạt tài khoản (kiểm tra hạn 24h)
-│   │   ├── forget.php            # Quên mật khẩu (hạn 24h)
-│   │   └── reset.php             # Đặt lại mật khẩu
-│   ├── home/
-│   │   └── welcome.php
-│   └── user/
-│       ├── add.php               # Thêm giao dịch (suspicious check)
-│       ├── edit.php              # Sửa giao dịch
-│       ├── delete.php            # Xóa hàng loạt
-│       ├── reconcile.php         # Đối soát tài khoản
-│       ├── budget.php            # Quản lý ngân sách
-│       ├── filter.php            # Lọc giao dịch
-│       ├── export.php            # Xuất CSV
-│       └── profile.php           # Đổi mật khẩu
-└── templates/                    # View (HTML templates)
-    ├── admin/
-    │   ├── dashboard.php
-    │   ├── categories.php
-    │   ├── users.php
-    │   └── profile.php
-    ├── auth/
-    │   ├── login.view.php
-    │   ├── verify_otp.view.php   # Form OTP + AJAX countdown
-    │   ├── register.view.php
-    │   ├── active.view.php       # Kích hoạt (kiểm tra hạn)
-    │   ├── forget.view.php
-    │   └── reset.view.php        # Reset mật khẩu (kiểm tra hạn)
-    ├── home/
-    │   └── welcome.php
-    ├── user/
-    │   ├── add.php               # Form thêm + suspicious modal
-    │   ├── edit.php              # Form sửa + suspicious modal
-    │   ├── dashboard.php         # Dashboard user
-    │   ├── budget.php            # Quản lý ngân sách
-    │   ├── filter.php            # Bộ lọc + kết quả
-    │   ├── export.php            # Form xuất CSV
-    │   └── profile.php           # Hồ sơ + đổi mật khẩu
-    ├── layout/
-    │   ├── header.php            # Header + notification toast
-    │   ├── footer.php
-    │   ├── sidebar.php           # Sidebar user
-    │   └── sidebar_admin.php     # Sidebar admin
-    └── error/
-        └── 404.php
+│   └── database_complete.sql  # Schema + dữ liệu mẫu
+│
+└── storage/               # Uploads, temp files
 ```
 
----
+## Khắc Phục Sự Cố
 
-## Luồng Xác Thực OTP
+### Email không gửi được
 
-1. User nhập email/password → `login.php` kiểm tra thông tin
-2. Nếu đúng → tạo mã OTP 6 số (60s), gửi email, lưu `otp_sent_at` vào session
-3. Chuyển đến form OTP (`verify_otp.view.php`)
-4. Form gửi AJAX `fetch()` đến `verify_otp.php` — không reload trang
-5. Đúng → redirect, Sai → hiện lỗi + countdown vẫn chạy
-6. Hết giờ → bấm "Gửi lại" (AJAX) → OTP mới + reset countdown
-7. Sai 5 lần → block 1 phút (tăng dần mỗi lần)
+1. Kiểm tra `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` trong `.env`
+2. Với Gmail: phải dùng **App Password**, không phải mật khẩu thường
+3. Port 465 dùng SSL, port 587 dùng TLS — đảm bảo cổng không bị firewall chặn
+4. Xem log tại `mail_debug.log` để biết chi tiết lỗi
+5. Nếu SMTP trống, email sẽ được log ra file mà không gửi thật
 
-### Tài khoản test
+### Lỗi database
 
-Hai tài khoản `user@gmail.com` và `admin@gmail.com` được hardcode bỏ qua OTP — đăng nhập thẳng vào dashboard.
+1. Đảm bảo database `quan_ly_chi_tieu` đã được tạo
+2. Import file `database/database_complete.sql` đầy đủ
+3. Kiểm tra thông tin trong `.env` khớp với MySQL của bạn
+4. Nếu dùng XAMPP, mặc định `DB_PASS` để trống
 
----
+### Lỗi 500 / White screen
 
-## Biện Pháp Bảo Mật Đã Áp Dụng
-
-- OTP 6 số dùng `random_int()`, hiệu lực 60s
-- Rate limit OTP (verify + resend) — session-based, block tăng dần
-- Session: httponly, SameSite=Strict
-- Login token kiểm tra mỗi request, xóa khi khóa user
-- Đăng xuất: POST-only, token đọc từ session (không trên URL)
-- Prepared statements cho mọi truy vấn
-- Input sanitize (`filter()`)
-- Role-based access (template + module)
-- Password hash bằng `password_hash(PASSWORD_DEFAULT)`
-- Link kích hoạt/reset hết hạn sau 24h
-- Chống tấn công CSRF (SameSite=Strict)
-
-## Lưu Ý Quan Trọng
-
-- **Không** commit file `.env` lên git (chỉ commit `.env.example`)
-- **Luôn** kiểm tra dữ liệu đầu vào trước khi xử lý
-- **Cập nhật** định kỳ để vá các lỗ hổng bảo mật
+1. Bật PHP error display trong `src/config/app.php`
+2. Kiểm tra Apache error log
+3. Đảm bảo thư mục `vendor/` tồn tại (chứa PHPMailer + FPDF)

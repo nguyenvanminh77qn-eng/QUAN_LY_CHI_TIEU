@@ -1,30 +1,33 @@
-# Environment configuration
+# ── Environment ──
 .env
 
-# IDE
+# ── IDE / OS ──
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
-
-# OS
 Thumbs.db
 .DS_Store
 
-# Logs
+# ── Logs ──
 *.log
 logs/
 
-# Local development
-node_modules/
-vendor/
+# ── Generated / Cache ──
+cache_categories.json
 .cache/
+storage/uploads/*
+storage/temp/*
+!storage/uploads/.gitkeep
+!storage/temp/.gitkeep
 
-# Database backups
+# ── Personal docs ──
+tmp_patch_note.txt
+Báo Cáo Dự Án - Quản Lý Chi Tiêu.txt
+
+# ── Node (not used but safe) ──
+node_modules/
+
+# ── Database backups ──
 *.sql.bak
-
-# Temp files
-tmp/
-temp/

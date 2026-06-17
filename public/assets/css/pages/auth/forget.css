@@ -1,0 +1,472 @@
+/* ============================================
+   Forget Password Page — Premium Split Layout
+   ============================================ */
+
+/* --- Page Layout --- */
+.forget-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 50%, #f8fafc 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.forget-page::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(13,148,136,0.06) 0%, transparent 70%);
+    top: -100px;
+    right: -80px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.forget-page::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.05) 0%, transparent 70%);
+    bottom: -80px;
+    left: -60px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.forget-page__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1200px;
+    width: 100%;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* --- Intro Section (Left) --- */
+.forget-page__intro {
+    padding: 20px 0;
+}
+
+.forget-page__intro-content {
+    max-width: 520px;
+}
+
+.forget-page__icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    color: #fff;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 24px rgba(15, 74, 123, 0.25);
+    animation: floatBadge 3s ease-in-out infinite;
+}
+
+.forget-page__icon-badge .material-symbols-outlined {
+    font-size: 32px;
+}
+
+@keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.forget-page__title {
+    font-size: 52px;
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+}
+
+.forget-page__description {
+    font-size: 18px;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 460px;
+    margin-bottom: 40px;
+}
+
+/* Features list */
+.forget-visual {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 28px;
+    animation: forgetFloat 6s ease-in-out infinite alternate;
+}
+
+.forget-visual svg {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    filter: drop-shadow(0 4px 16px rgba(13,148,136,0.06));
+}
+
+@keyframes forgetFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-8px); }
+}
+
+@keyframes forgetKeyBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes forgetDotPulse {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+}
+
+.forget-page__features {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.forget-page__feature {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-main);
+    padding: 12px 18px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.forget-page__feature:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.forget-page__feature .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--color-primary);
+}
+
+/* --- Form Section (Right) --- */
+.forget-page__form-section {
+    display: flex;
+    justify-content: center;
+}
+
+/* --- Card --- */
+.forget-card {
+    background: var(--color-surface);
+    padding: 48px;
+    border-radius: 28px;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.02),
+        0 15px 35px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-border);
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+    overflow: hidden;
+}
+
+.forget-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover), #6dd5ed);
+}
+
+/* Card Header */
+.forget-card__header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.forget-card__icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(15, 74, 123, 0.08), rgba(52, 152, 219, 0.12));
+    color: var(--color-primary);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.forget-card__icon-circle:hover {
+    transform: scale(1.08);
+}
+
+.forget-card__icon-circle .material-symbols-outlined {
+    font-size: 34px;
+}
+
+.forget-card__title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--color-text-main);
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+}
+
+.forget-card__subtitle {
+    font-size: 15px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* --- Form --- */
+.forget-card__form {
+    margin-top: 8px;
+}
+
+.forget-card__form .form-group {
+    margin-bottom: 24px;
+}
+
+.forget-card__form .form-group__label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-main);
+}
+
+.forget-card__form .form-group__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.forget-card__form .form-group__icon {
+    position: absolute;
+    left: 16px;
+    color: var(--color-text-muted);
+    font-size: 20px;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.forget-card__form .form-group__input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    font-family: var(--font-main);
+}
+
+.forget-card__form .form-group__input::placeholder {
+    color: #a0aec0;
+}
+
+.forget-card__form .form-group__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+    box-shadow: 0 0 0 4px rgba(15, 74, 123, 0.1);
+}
+
+.forget-card__form .form-group__input:focus + .form-group__icon,
+.forget-card__form .form-group__input:focus ~ .form-group__icon {
+    color: var(--color-primary);
+}
+
+/* --- Submit Button --- */
+.forget-card .btn-submit {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    color: #fff !important;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-main);
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 14px rgba(15, 74, 123, 0.25);
+}
+
+.forget-card .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 74, 123, 0.35);
+}
+
+.forget-card .btn-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(15, 74, 123, 0.2);
+}
+
+.forget-card .btn-submit__icon {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+    color: #fff !important;
+}
+.forget-card .btn-submit span {
+    color: #fff !important;
+}
+
+.forget-card .btn-submit:hover .btn-submit__icon {
+    transform: translateX(4px);
+}
+
+/* --- Divider --- */
+.forget-card__divider {
+    position: relative;
+    text-align: center;
+    margin: 28px 0;
+}
+
+.forget-card__divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--color-border);
+}
+
+.forget-card__divider-text {
+    position: relative;
+    background-color: var(--color-surface);
+    padding: 0 16px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+/* --- Footer Links --- */
+.forget-card__footer {
+    text-align: center;
+}
+
+.forget-card__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--color-border);
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.forget-card__back-link:hover {
+    border-color: var(--color-primary);
+    background: rgba(15, 74, 123, 0.04);
+    transform: translateX(-4px);
+}
+
+.forget-card__back-link .material-symbols-outlined {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.forget-card__back-link:hover .material-symbols-outlined {
+    transform: translateX(-4px);
+}
+
+.forget-card__register {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+.forget-card__link {
+    color: var(--color-primary);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 5px;
+    transition: all 0.2s ease;
+}
+
+.forget-card__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .forget-page__container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .forget-page__intro-content {
+        margin: 0 auto;
+    }
+
+    .forget-page__description {
+        margin: 0 auto 40px auto;
+    }
+
+    .forget-page__title {
+        font-size: 38px;
+    }
+
+    .forget-page__features {
+        align-items: center;
+    }
+
+    .forget-card {
+        padding: 36px 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .forget-page {
+        padding: 20px 16px;
+    }
+
+    .forget-page__title {
+        font-size: 30px;
+    }
+
+    .forget-card {
+        padding: 28px 20px;
+        border-radius: 20px;
+    }
+
+    .forget-card__title {
+        font-size: 24px;
+    }
+}

@@ -1,0 +1,755 @@
+.sidebar {
+  background-color: var(--color-surface);
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  box-shadow: var(--shadow-md);
+  height: calc(100vh - 40px);
+  position: sticky;
+  top: 20px;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: nowrap;
+  transition: width var(--transition-smooth), padding var(--transition-smooth), min-width var(--transition-smooth), background var(--transition-smooth), border-color var(--transition-smooth);
+  z-index: 100;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  animation: fadeIn 0.6s var(--ease-out-expo) both;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.sidebar.hidden {
+  width: 76px;
+  min-width: 76px;
+  padding: 24px 8px;
+  overflow: visible;
+}
+.sidebar.hidden .brand {
+  padding-left: 0;
+}
+.sidebar.hidden .brand h2 {
+  font-size: 0;
+  opacity: 0;
+  width: 0;
+}
+.sidebar.hidden .menu-links {
+  gap: 6px;
+  align-items: center;
+}
+.sidebar.hidden .menu-links a {
+  justify-content: center;
+  gap: 0;
+  padding: 12px 0;
+  border-left: none;
+  width: 100%;
+  text-align: center;
+}
+.sidebar.hidden .menu-links a::before {
+  font-size: 24px;
+}
+.sidebar.hidden .menu-links a::after,
+.sidebar.hidden .btn-primary-menu::after,
+.sidebar.hidden .sidebar-footer a::after,
+.sidebar.hidden .sidebar-footer .logout-link::after {
+  width: 0;
+  opacity: 0;
+  margin: 0;
+}
+.sidebar.hidden .sidebar-footer {
+  align-items: center;
+}
+.sidebar.hidden .sidebar-footer a,
+.sidebar.hidden .sidebar-footer .logout-link {
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 10px 0 !important;
+  border-left: none !important;
+  width: 100% !important;
+  text-align: center !important;
+  position: relative !important;
+}
+.sidebar.hidden .sidebar-footer a::before,
+.sidebar.hidden .sidebar-footer .logout-link::before {
+  font-size: 24px;
+}
+.sidebar.hidden .btn-primary-menu {
+  justify-content: center;
+  gap: 0;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  border-radius: 50%;
+  position: relative;
+}
+.sidebar.hidden .btn-primary-menu::before {
+  font-size: 24px;
+}
+.sidebar.hidden .menu-links a:hover,
+.sidebar.hidden .sidebar-footer a:hover,
+.sidebar.hidden .sidebar-footer .logout-link:hover {
+  padding-left: 0 !important;
+}
+
+
+/* Tooltip on hover when collapsed */
+.sidebar.hidden .menu-links a::after,
+.sidebar.hidden .btn-primary-menu::after,
+.sidebar.hidden .sidebar-footer a::after,
+.sidebar.hidden .sidebar-footer .logout-link::after {
+  transition: width 0.3s, opacity 0.3s;
+}
+.sidebar.hidden .menu-links a:hover::after,
+.sidebar.hidden .btn-primary-menu:hover::after,
+.sidebar.hidden .sidebar-footer a:hover::after,
+.sidebar.hidden .sidebar-footer .logout-link:hover::after {
+  width: auto;
+  opacity: 1;
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  z-index: 200;
+  pointer-events: none;
+}
+.sidebar.hidden .sidebar-footer .logout-link:hover::after {
+  color: var(--color-danger);
+}
+
+/* --- Brand Section --- */
+.brand {
+  margin-bottom: 32px;
+  padding-left: 8px;
+}
+
+.brand h2 {
+  font-size: 20px;
+  color: var(--color-primary);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  transition:
+    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Menu Links --- */
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.menu-links a {
+  text-decoration: none;
+  color: var(--color-text-muted);
+  padding: 12px 16px 12px 12px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0 !important; /* Hide original text node */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 4px solid transparent;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Sidebar inbox badge (red dot with count) */
+.sidebar-badge {
+  position: absolute;
+  top: 4px;
+  left: 24px;   /* ngay cạnh icon ::before (20px wide) */
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 10px !important;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+  box-shadow: 0 2px 6px rgba(220,38,38,0.45);
+}
+.sidebar-badge.is-hidden {
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.sidebar.hidden .sidebar-badge {
+  left: auto;
+  right: -4px;
+  top: 4px;
+}
+
+/* Base Material Icon styles */
+.menu-links a::before {
+  font-family: "Material Symbols Outlined";
+  font-size: 20px;
+  font-weight: normal;
+  display: inline-block;
+  transition: transform var(--transition-normal);
+}
+
+/* Text labels animate smoothly */
+.menu-links a::after,
+.btn-primary-menu::after,
+.sidebar-footer a::after,
+.sidebar-footer .logout-link::after {
+  transition:
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* --- Dynamic Emoji & Text Replacement via CSS --- */
+/* User Sidebar Links */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=dashboard"]::before {
+  content: "payments";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=dashboard"]::after {
+  content: "Danh sách chi tiêu";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=budget"]::before {
+  content: "account_balance_wallet";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=budget"]::after {
+  content: "Ngân sách mục tiêu";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=limit"]::before {
+  content: "do_not_disturb";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=limit"]::after {
+  content: "Hạn mức";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=filter"]::before {
+  content: "search";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=filter"]::after {
+  content: "Tìm kiếm";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=export"]::before {
+  content: "ios_share";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=export"]::after {
+  content: "Xuất báo cáo";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=inbox"]::before {
+  content: "chat";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=inbox"]::after {
+  content: "Hộp thư";
+  font-size: 14px;
+}
+
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=wallet"]::before {
+  content: "account_balance_wallet";
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=wallet"]::after {
+  content: "Quản lý Ví";
+  font-size: 14px;
+}
+
+/* Admin Sidebar Links */
+.admin-sidebar .menu-links a[href*="action=dashboard"]::before {
+  content: "analytics";
+}
+.admin-sidebar .menu-links a[href*="action=dashboard"]::after {
+  content: "Tổng quan hệ thống";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=users"]::before {
+  content: "group";
+}
+.admin-sidebar .menu-links a[href*="action=users"]::after {
+  content: "Quản lý thành viên";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=categories"]::before {
+  content: "category";
+}
+.admin-sidebar .menu-links a[href*="action=categories"]::after {
+  content: "Quản lý danh mục";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=notifications"]::before {
+  content: "notifications";
+}
+.admin-sidebar .menu-links a[href*="action=notifications"]::after {
+  content: "Quản lý thông báo";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=inbox"]::before {
+  content: "chat";
+}
+.admin-sidebar .menu-links a[href*="action=inbox"]::after {
+  content: "Hộp thư";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=report"]::before {
+  content: "description";
+}
+.admin-sidebar .menu-links a[href*="action=report"]::after {
+  content: "Báo cáo thu chi";
+  font-size: 14px;
+}
+
+.admin-sidebar .menu-links a[href*="action=report"]:hover {
+  background-color: rgba(212, 168, 67, 0.1) !important;
+  color: var(--color-admin-light) !important;
+  border-left-color: var(--color-admin) !important;
+  padding-left: 16px !important;
+}
+.admin-sidebar .menu-links a[href*="action=report"].active {
+  background: linear-gradient(135deg, var(--color-admin), var(--color-admin-dark)) !important;
+  color: #1a1512 !important;
+  border-left-color: var(--color-admin-dark) !important;
+  box-shadow: 0 4px 14px rgba(212, 168, 67, 0.3) !important;
+}
+
+/* =========================================
+   USER SIDEBAR ACCENTS (DIVERSE & VIBRANT)
+========================================= */
+
+/* 1. Dashboard Link Accent: Blue */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=dashboard"]:hover {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border-left-color: #3b82f6;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=dashboard"].active {
+  background-color: #3b82f6;
+  color: white !important;
+  border-left-color: #1d4ed8;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+}
+
+/* 2. Budget Link Accent: Purple */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=budget"]:hover {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+  border-left-color: #8b5cf6;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=budget"].active {
+  background-color: #8b5cf6;
+  color: white !important;
+  border-left-color: #6d28d9;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
+}
+
+/* 3. Limit Link Accent: Rose */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=limit"]:hover {
+  background-color: #fff1f2;
+  color: #be123c;
+  border-left-color: #e11d48;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=limit"].active {
+  background-color: #e11d48;
+  color: white !important;
+  border-left-color: #be123c;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.25);
+}
+
+/* 4. Filter Link Accent: Teal */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=filter"]:hover {
+  background-color: #f0fdfa;
+  color: #0d9488;
+  border-left-color: #0d9488;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=filter"].active {
+  background-color: #0d9488;
+  color: white !important;
+  border-left-color: #0f766e;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+}
+
+/* 5. Inbox Link Accent: Cyan */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=inbox"]:hover {
+  background-color: #ecfeff;
+  color: #0891b2;
+  border-left-color: #06b6d4;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=inbox"].active {
+  background-color: #06b6d4;
+  color: white !important;
+  border-left-color: #0891b2;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+}
+
+/* 6. Export Link Accent: Orange */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=export"]:hover {
+  background-color: #fff7ed;
+  color: #ea580c;
+  border-left-color: #f97316;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=export"].active {
+  background-color: #f97316;
+  color: white !important;
+  border-left-color: #c2410c;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+}
+
+/* 7. Wallet Link Accent: Amber/Gold */
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=wallet"]:hover {
+  background-color: #fffbeb;
+  color: #d97706;
+  border-left-color: #f59e0b;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .menu-links a[href*="action=wallet"].active {
+  background-color: #f59e0b;
+  color: white !important;
+  border-left-color: #d97706;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+/* =========================================
+   ADMIN SIDEBAR ACCENTS (UNIFIED & COHESIVE)
+========================================= */
+.admin-sidebar .menu-links a:hover {
+  background-color: rgba(212, 168, 67, 0.1) !important;
+  color: var(--color-admin-light) !important;
+  border-left-color: var(--color-admin) !important;
+  padding-left: 16px !important;
+}
+.admin-sidebar .menu-links a.active {
+  background: linear-gradient(135deg, var(--color-admin), var(--color-admin-dark)) !important;
+  color: #1a1512 !important;
+  border-left-color: var(--color-admin-dark) !important;
+  box-shadow: 0 4px 14px rgba(212, 168, 67, 0.3) !important;
+}
+
+/* --- Sidebar Action (CTA Button) --- */
+.sidebar-action {
+  margin: 24px 0;
+}
+
+.btn-primary-menu {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white !important;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0 !important; /* Hide original text "＋ Thêm chi tiêu" */
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+  transition: all var(--transition-normal);
+}
+
+.btn-primary-menu::before {
+  content: "add_circle" !important;
+  font-family: "Material Symbols Outlined";
+  font-size: 20px;
+}
+
+.btn-primary-menu::after {
+  content: "Thêm chi tiêu";
+  font-size: 14px;
+}
+
+.btn-primary-menu:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+}
+
+.btn-primary-menu:active {
+  transform: translateY(0);
+}
+
+/* --- Sidebar Footer & Profile & Logout --- */
+.sidebar-footer {
+  border-top: 1px solid var(--color-border);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-footer a {
+  text-decoration: none;
+  color: var(--color-text-muted);
+  padding: 10px 12px;
+  font-size: 0 !important; /* Hide "👤 Profile" */
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border-left: 4px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all var(--transition-normal);
+}
+
+.sidebar-footer a::before {
+  font-family: "Material Symbols Outlined";
+  content: "account_circle";
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.sidebar-footer a::after {
+  content: "Hồ sơ cá nhân";
+  font-size: 14px;
+}
+
+/* User Profile Accent: Indigo */
+.sidebar:not(.admin-sidebar) .sidebar-footer a:hover {
+  background-color: #f5f3ff;
+  color: #4f46e5;
+  border-left-color: #6366f1;
+  padding-left: 16px;
+}
+.sidebar:not(.admin-sidebar) .sidebar-footer a.active {
+  background-color: #6366f1;
+  color: white !important;
+  border-left-color: #4f46e5;
+}
+
+/* Admin Profile Accent: Gold */
+.admin-sidebar .sidebar-footer a:hover {
+  background-color: rgba(212, 168, 67, 0.1);
+  color: var(--color-admin-light);
+  border-left-color: var(--color-admin);
+  padding-left: 16px;
+}
+.admin-sidebar .sidebar-footer a.active {
+  background: linear-gradient(135deg, var(--color-admin), var(--color-admin-dark)) !important;
+  color: #1a1512 !important;
+  border-left-color: var(--color-admin-dark);
+}
+
+/* Logout styling */
+.sidebar-footer form {
+  width: 100%;
+}
+
+.sidebar-footer .logout-link {
+  color: var(--color-danger) !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-size: 0 !important; /* Hide "↪ Đăng xuất" */
+  font-weight: 700 !important;
+  padding: 12px 12px !important;
+  width: 100% !important;
+  text-align: left !important;
+  border-radius: var(--radius-md) !important;
+  border-left: 4px solid transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  transition: all var(--transition-normal) !important;
+}
+
+.sidebar-footer .logout-link::before {
+  font-family: "Material Symbols Outlined";
+  content: "logout";
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.sidebar-footer .logout-link::after {
+  content: "Đăng xuất";
+  font-size: 14px;
+}
+
+.sidebar-footer .logout-link:hover {
+  background-color: #fef2f2 !important;
+  color: var(--color-danger) !important;
+  border-left-color: var(--color-danger) !important;
+  padding-left: 16px !important;
+}
+
+/* =========================================
+   ADMIN SIDEBAR SPECIFIC STYLE (DARK SLEEK)
+========================================= */
+.admin-sidebar {
+  background: linear-gradient(180deg, rgba(26, 21, 18, 0.98), rgba(34, 32, 28, 0.98)) !important;
+  backdrop-filter: blur(20px);
+  border-color: rgba(58, 50, 42, 0.6) !important;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(212, 168, 67, 0.04) !important;
+  position: relative;
+}
+
+.admin-sidebar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.15), transparent);
+}
+
+.admin-sidebar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.08), transparent);
+}
+
+.admin-sidebar .brand h2 {
+  background: linear-gradient(135deg, #d4a843 0%, #f5e6c8 50%, #b8922e 100%);
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-size: 22px;
+}
+
+.admin-sidebar .menu-links a {
+  color: #a09080;
+  transition: all var(--transition-normal);
+}
+
+.admin-sidebar .menu-links a:hover {
+  transform: translateX(3px);
+}
+
+.admin-sidebar .menu-links a.active {
+  transform: translateX(3px);
+}
+
+.admin-sidebar .sidebar-footer {
+  border-color: rgba(58, 50, 42, 0.6);
+}
+
+.admin-sidebar .sidebar-footer a {
+  color: #a09080;
+}
+
+.admin-sidebar .sidebar-footer a:hover {
+  transform: translateX(3px);
+}
+
+.admin-sidebar .sidebar-footer a.active {
+  background: linear-gradient(135deg, var(--color-admin), var(--color-admin-dark)) !important;
+  color: #1a1512 !important;
+  border-left-color: var(--color-admin-dark) !important;
+  box-shadow: 0 4px 14px rgba(212, 168, 67, 0.3) !important;
+}
+
+.admin-sidebar .logout-link {
+  color: #f87171 !important;
+}
+
+.admin-sidebar .logout-link:hover {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+  border-left-color: #ef4444 !important;
+  transform: translateX(3px) !important;
+}
+
+/* ── Admin sidebar: Light mode ── */
+[data-theme="light"] .admin-sidebar {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="light"] .admin-sidebar::before,
+[data-theme="light"] .admin-sidebar::after {
+  display: none;
+}
+[data-theme="light"] .admin-sidebar .brand h2 {
+  background: linear-gradient(135deg, #1e293b, #475569) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+[data-theme="light"] .admin-sidebar .menu-links a {
+  color: #334155;
+}
+[data-theme="light"] .admin-sidebar .menu-links a:hover {
+  background-color: rgba(13, 148, 136, 0.08) !important;
+  color: #0d9488 !important;
+  border-left-color: #0d9488 !important;
+  padding-left: 16px !important;
+}
+[data-theme="light"] .admin-sidebar .menu-links a.active {
+  background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+  color: #fff !important;
+  border-left-color: #0f766e !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3) !important;
+}
+[data-theme="light"] .admin-sidebar .sidebar-footer {
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .admin-sidebar .sidebar-footer a {
+  color: #475569;
+}
+[data-theme="light"] .admin-sidebar .sidebar-footer a:hover {
+  background-color: rgba(13, 148, 136, 0.08) !important;
+  color: #0d9488 !important;
+  border-left-color: #0d9488 !important;
+  transform: translateX(3px);
+}
+[data-theme="light"] .admin-sidebar .sidebar-footer a.active {
+  background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+  color: #fff !important;
+  border-left-color: #0f766e !important;
+}
+[data-theme="light"] .admin-sidebar .logout-link {
+  color: #dc2626 !important;
+}
+[data-theme="light"] .admin-sidebar .logout-link:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-left-color: #dc2626 !important;
+}
+

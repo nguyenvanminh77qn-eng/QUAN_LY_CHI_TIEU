@@ -1,0 +1,274 @@
+.limit-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.limit-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 28px 0;
+  flex-wrap: wrap;
+}
+
+.limit-card__header-left {
+  flex: 1;
+  min-width: 200px;
+}
+
+.limit-card__title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.limit-card__desc {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.limit-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 32px;
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.12s;
+}
+
+.limit-btn-save:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.limit-btn-save:active {
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+/* ═══ Table ═══ */
+.limit-table-wrap {
+  padding: 20px 28px 28px;
+  overflow-x: auto;
+}
+
+.limit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Header */
+.limit-table thead {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.limit-th {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.limit-th--current,
+.limit-th--new {
+  text-align: right;
+  width: 170px;
+}
+
+.limit-th--status {
+  text-align: center;
+  width: 110px;
+}
+
+/* Body rows */
+.limit-row {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.limit-row:last-child {
+  border-bottom: none;
+}
+
+.limit-td {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+/* Category cell */
+.limit-td--cat {
+  min-width: 180px;
+}
+
+.limit-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.limit-cat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.limit-cat-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Current limit value */
+.limit-td--current {
+  text-align: right;
+}
+
+.limit-current-value {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.limit-current-none {
+  color: #cbd5e1;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Input */
+.limit-td--new {
+  text-align: right;
+}
+
+.limit-input {
+  width: 100%;
+  max-width: 180px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: right;
+  color: #0f172a;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.limit-input::placeholder {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.limit-input:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.limit-input:hover {
+  border-color: #94a3b8;
+}
+
+/* Status pill */
+.limit-td--status {
+  text-align: center;
+}
+
+.limit-pill {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.limit-pill--active {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.limit-pill--inactive {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* Empty state */
+.limit-empty {
+  text-align: center;
+  padding: 40px 20px !important;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ═══ Responsive ═══ */
+@media (max-width: 768px) {
+  .limit-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 20px 0;
+  }
+
+  .limit-btn-save {
+    width: 100%;
+    height: 44px;
+  }
+
+  .limit-table-wrap {
+    padding: 16px 20px 20px;
+  }
+
+  .limit-th--current,
+  .limit-th--new {
+    width: auto;
+  }
+
+  .limit-input {
+    max-width: 130px;
+    font-size: 13px;
+    height: 38px;
+  }
+
+  .limit-td {
+    padding: 12px 8px;
+  }
+
+  .limit-td--cat {
+    min-width: 120px;
+  }
+
+  .limit-cat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,632 @@
+/* =========================================
+   ADMIN DASHBOARD (RESTAURANT GOLD / BRASS)
+   ========================================= */
+
+/* --- Warm ambient glow --- */
+.app-container:has(.admin-sidebar) .main-content {
+  position: relative;
+}
+
+.app-container:has(.admin-sidebar) .main-content::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(212, 168, 67, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(180, 146, 46, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: admin-ambient 20s ease-in-out infinite alternate;
+}
+
+@keyframes admin-ambient {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { transform: translate(-1.5%, -0.5%) rotate(2deg); opacity: 0.7; }
+}
+
+.app-container:has(.admin-sidebar) .page-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Stats Grid --- */
+.app-container:has(.admin-sidebar) .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.app-container:has(.admin-sidebar) .stat-card {
+  background: linear-gradient(145deg, var(--card-bg), rgba(34, 32, 28, 0.7));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 26px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-container:has(.admin-sidebar) .stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.15), transparent);
+}
+
+.app-container:has(.admin-sidebar) .stat-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 168, 67, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 168, 67, 0.06);
+}
+
+/* Stats card accent glows */
+.app-container:has(.admin-sidebar) .stat-card:nth-child(1)::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.08), transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.app-container:has(.admin-sidebar) .stat-card:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.06), transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* Premium Gold card (System Balance) */
+.app-container:has(.admin-sidebar) .dark-green-card {
+  background: linear-gradient(135deg, #b8922e 0%, #d4a843 40%, #c49b3c 70%, #8a6d1f 100%) !important;
+  border: none !important;
+  box-shadow: 0 10px 35px rgba(212, 168, 67, 0.2), 0 0 40px rgba(212, 168, 67, 0.06) !important;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-spring) !important;
+}
+
+.app-container:has(.admin-sidebar) .dark-green-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 0, 0, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.app-container:has(.admin-sidebar) .dark-green-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 50px rgba(212, 168, 67, 0.35), 0 0 60px rgba(212, 168, 67, 0.1) !important;
+}
+
+.app-container:has(.admin-sidebar) .dark-green-card::after {
+  content: 'admin_panel_settings';
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 1;
+  position: absolute;
+  font-size: 120px;
+  color: rgba(255, 255, 255, 0.06);
+  bottom: -30px;
+  right: -20px;
+  pointer-events: none;
+}
+
+.app-container:has(.admin-sidebar) .card-title {
+  color: rgba(245, 240, 235, 0.6) !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.app-container:has(.admin-sidebar) .card-desc {
+  color: rgba(245, 240, 235, 0.35);
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
+.app-container:has(.admin-sidebar) .stat-card h2 {
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--color-text-main);
+}
+
+.app-container:has(.admin-sidebar) .stat-card:nth-child(1) { border-left: 5px solid var(--color-admin); }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(1):hover { border-left-width: 8px; }
+
+.app-container:has(.admin-sidebar) .stat-card:nth-child(2) { border-left: 5px solid #8a7f75; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(2):hover { border-left-width: 8px; }
+
+.app-container:has(.admin-sidebar) .stat-card:nth-child(3) { border-left: 5px solid #d4a843; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(4) { border-left: 5px solid #3498db; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(5) { border-left: 5px solid #2ecc71; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(6) { border-left: 5px solid #e74c3c; }
+
+/* --- Admin Card-box override (for the tables section) --- */
+.app-container:has(.admin-sidebar) .card-box {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-spring);
+}
+.app-container:has(.admin-sidebar) .card-box:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.app-container:has(.admin-sidebar) .card-box .section-header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  background: linear-gradient(135deg, #f5e6c8, #d4a843);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Admin dark table --- */
+.app-container:has(.admin-sidebar) .data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.app-container:has(.admin-sidebar) .data-table thead {
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.08), rgba(180, 146, 46, 0.03));
+}
+
+.app-container:has(.admin-sidebar) .data-table th {
+  background: transparent;
+  color: #d4a843 !important;
+}
+
+.app-container:has(.admin-sidebar) .data-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.15);
+}
+
+.app-container:has(.admin-sidebar) .data-table tbody td {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: rgba(245, 240, 235, 0.75);
+  border-bottom: 1px solid rgba(42, 37, 32, 0.5);
+}
+
+.app-container:has(.admin-sidebar) .data-table tbody td.desc {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.app-container:has(.admin-sidebar) .data-table tbody tr:hover td {
+  background: rgba(212, 168, 67, 0.04);
+}
+
+.app-container:has(.admin-sidebar) .text-income {
+  color: #2ecc71 !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-container:has(.admin-sidebar) .text-expense {
+  color: #e74c3c !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- Entrance animations with stagger --- */
+.app-container:has(.admin-sidebar) .stat-card {
+  opacity: 0;
+  animation: fadeSlideDown 0.5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
+.app-container:has(.admin-sidebar) .stat-card:nth-child(1) { animation-delay: 0.05s; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(2) { animation-delay: 0.1s; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(3) { animation-delay: 0.15s; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(4) { animation-delay: 0.2s; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(5) { animation-delay: 0.25s; }
+.app-container:has(.admin-sidebar) .stat-card:nth-child(6) { animation-delay: 0.3s; }
+
+.app-container:has(.admin-sidebar) .chart-container-card {
+  opacity: 0;
+  animation: fadeSlideDown 0.5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
+.app-container:has(.admin-sidebar) .chart-grid .chart-container-card:nth-child(1) { animation-delay: 0.35s; }
+.app-container:has(.admin-sidebar) .chart-grid .chart-container-card:nth-child(2) { animation-delay: 0.4s; }
+
+.app-container:has(.admin-sidebar) .data-grid .card-box {
+  opacity: 0;
+  animation: fadeSlideDown 0.5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+}
+.app-container:has(.admin-sidebar) .data-grid .card-box:nth-child(1) { animation-delay: 0.45s; }
+.app-container:has(.admin-sidebar) .data-grid .card-box:nth-child(2) { animation-delay: 0.5s; }
+
+/* Disable hover conflicts on data-grid cards */
+.app-container:has(.admin-sidebar) .data-grid .card-box:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.app-container:has(.admin-sidebar) .data-grid .card-box::after {
+  display: none !important;
+}
+
+/* --- Notification Broadcast --- */
+.app-container:has(.admin-sidebar) .notification-broadcast {
+  margin-bottom: 25px !important;
+  padding: 28px !important;
+  background: linear-gradient(145deg, var(--card-bg), rgba(34, 32, 28, 0.8)) !important;
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-left: 6px solid #c0392b !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.1), transparent);
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast:hover {
+  border-color: rgba(192, 57, 43, 0.3) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast h3 {
+  margin: 0 0 8px 0 !important;
+  color: var(--color-text-main) !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast > p {
+  margin: 0 0 20px 0 !important;
+  color: var(--color-text-muted) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  font-weight: 500;
+}
+
+/* Broadcast form inputs */
+.app-container:has(.admin-sidebar) .notification-broadcast form input[type="text"],
+.app-container:has(.admin-sidebar) .notification-broadcast form select,
+.app-container:has(.admin-sidebar) .notification-broadcast form input[type="datetime-local"] {
+  width: 100% !important;
+  padding: 10px 16px !important;
+  border: 1px solid rgba(42, 37, 32, 0.9) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  background: rgba(13, 13, 13, 0.6) !important;
+  color: var(--color-text-main) !important;
+  outline: none !important;
+  transition: all var(--transition-normal) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast form input[type="text"]:focus,
+.app-container:has(.admin-sidebar) .notification-broadcast form select:focus,
+.app-container:has(.admin-sidebar) .notification-broadcast form input[type="datetime-local"]:focus {
+  border-color: var(--color-admin) !important;
+  background: rgba(13, 13, 13, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12), inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"] {
+  background: linear-gradient(135deg, #c0392b 0%, #962d22 100%) !important;
+  color: white !important;
+  padding: 10px 24px !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  cursor: pointer !important;
+  font-weight: 750 !important;
+  font-size: 14px !important;
+  height: 44px !important;
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.25) !important;
+  transition: all var(--transition-normal) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"]::before {
+  font-family: 'Material Symbols Outlined';
+  content: 'campaign';
+  font-size: 18px;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 50%);
+  pointer-events: none;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(192, 57, 43, 0.35) !important;
+}
+
+/* History scrollbar */
+.app-container:has(.admin-sidebar) .notification-broadcast ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast ::-webkit-scrollbar-thumb {
+  background: rgba(42, 37, 32, 0.6);
+  border-radius: 3px;
+}
+
+.app-container:has(.admin-sidebar) .notification-broadcast ::-webkit-scrollbar-thumb:hover {
+  background: rgba(42, 37, 32, 0.9);
+}
+
+/* --- Chart Grid (2 columns) --- */
+.app-container:has(.admin-sidebar) .chart-section {
+  margin-top: 20px;
+}
+
+.app-container:has(.admin-sidebar) .chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* --- Data Grid (2 columns for tables) --- */
+.app-container:has(.admin-sidebar) .data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.app-container:has(.admin-sidebar) .chart-container-card {
+  background: linear-gradient(145deg, var(--card-bg), rgba(34, 32, 28, 0.8));
+  backdrop-filter: blur(12px);
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.app-container:has(.admin-sidebar) .chart-container-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.1), transparent);
+}
+
+.app-container:has(.admin-sidebar) .chart-container-card:hover {
+  border-color: rgba(212, 168, 67, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.app-container:has(.admin-sidebar) .chart-title {
+  font-size: 18px;
+  font-weight: 850;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+}
+
+.app-container:has(.admin-sidebar) .chart-legend {
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Make chart bars wrapper taller */
+.canvas-wrapper {
+  height: 540px;
+  position: relative;
+}
+
+/* Chart dot legend colors */
+.app-container:has(.admin-sidebar) .dot-income {
+  color: #2ecc71;
+}
+.app-container:has(.admin-sidebar) .dot-expense {
+  color: #e74c3c;
+}
+.app-container:has(.admin-sidebar) .dot-usage {
+  color: #d4a843;
+}
+
+/* Dual sub-charts inside category card */
+.app-container:has(.admin-sidebar) .dual-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.app-container:has(.admin-sidebar) .sub-chart-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(245, 240, 235, 0.45);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0;
+  padding: 4px 0 2px 4px;
+}
+
+.app-container:has(.admin-sidebar) .sub-canvas-wrapper {
+  height: 185px;
+  position: relative;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1199px) {
+  .app-container:has(.admin-sidebar) .chart-grid,
+  .app-container:has(.admin-sidebar) .data-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 991px) {
+  .app-container:has(.admin-sidebar) .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .app-container:has(.admin-sidebar) .stats-grid .stat-card:nth-child(3) { grid-column: auto; }
+}
+
+/* ── Dashboard Light Mode ── */
+[data-theme="light"] .app-container:has(.admin-sidebar) .main-content::before {
+  display: none !important;
+}
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card::before { display: none; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  transform: translateY(-2px);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card h2 { color: #0f172a; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .card-title { color: #64748b !important; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .card-desc { color: #94a3b8; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(1) { border-left: 5px solid #0d9488; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(2) { border-left: 5px solid #64748b; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(3) { border-left: 5px solid #0d9488; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(4) { border-left: 5px solid #3b82f6; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(5) { border-left: 5px solid #22c55e; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card:nth-child(6) { border-left: 5px solid #ef4444; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card::before {
+  background: linear-gradient(90deg, transparent, rgba(13,148,136,.15), transparent);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .stat-card::after { display: none !important; }
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .dark-green-card {
+  background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+  box-shadow: 0 10px 35px rgba(13,148,136,.2) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .dark-green-card:hover {
+  box-shadow: 0 18px 50px rgba(13,148,136,.35) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .dark-green-card::after { display: none; }
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .card-box .section-header h3 {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
+  color: #0f172a;
+}
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .data-table thead {
+  background: #f8fafc;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .data-table th {
+  color: #475569 !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .data-table thead th {
+  border-bottom-color: #e2e8f0;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .data-table tbody td {
+  color: #334155;
+  border-bottom-color: #e2e8f0;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .data-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .chart-container-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .chart-container-card::before {
+  background: linear-gradient(90deg, transparent, rgba(13,148,136,.12), transparent);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .chart-container-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .chart-title { color: #0f172a; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .chart-legend { color: #64748b; }
+
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast {
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: 6px solid #dc2626 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast::before { display: none; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form input[type="text"],
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form select,
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form input[type="datetime-local"] {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form input[type="text"]:focus,
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form select:focus,
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form input[type="datetime-local"]:focus {
+  border-color: #0d9488 !important;
+  box-shadow: 0 0 0 3px rgba(13,148,136,.1) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"] {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  box-shadow: 0 4px 14px rgba(220,38,38,.25) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast form button[name="broadcast_notification"]:hover {
+  box-shadow: 0 8px 24px rgba(220,38,38,.35) !important;
+}
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast h3 { color: #0f172a !important; }
+[data-theme="light"] .app-container:has(.admin-sidebar) .notification-broadcast > p { color: #64748b !important; }
