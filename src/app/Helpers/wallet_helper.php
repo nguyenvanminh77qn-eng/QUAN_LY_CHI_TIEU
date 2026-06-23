@@ -92,6 +92,32 @@ function canApplyPendingEdit($transaction, $pending, $userId) {
  * Apply a pending_edit: update the transaction row with new values and clear pending columns.
  * Returns true on success.
  */
+function buildBailoutModalData($userId, $walletId, $price, $deficit, $categoryId, $description, $transactionDate, $type) {
+    $otherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$userId, 'wid'=>$walletId]);
+    $sufficientWallets = [];
+    foreach ($otherWallets as $ow) {
+        $ob = getWalletBalance($ow['id'], $userId);
+        if ($ob >= (float)$price) {
+            $sufficientWallets[] = $ow + ['balance' => $ob];
+        }
+    }
+    $cwi = getOne("SELECT name, icon, type FROM wallet WHERE id = :id", ['id'=>$walletId]);
+    $walletBalance = getWalletBalance($walletId, $userId);
+    $isTarget = $cwi && $cwi['type'] === 'target';
+    $allWallets = [['id' => $walletId, 'name' => $cwi['name'] ?? '', 'icon' => $cwi['icon'] ?? '💰', 'type' => $cwi['type'] ?? 'daily', 'balance' => $walletBalance]];
+    foreach ($otherWallets as $ow) {
+        $allWallets[] = $ow + ['balance' => getWalletBalance($ow['id'], $userId)];
+    }
+    return [
+        'deficit' => $deficit, 'price' => $price,
+        'wallet_id' => $walletId, 'wallet_name' => $cwi['name'] ?? '', 'wallet_icon' => $cwi['icon'] ?? '💰',
+        'wallet_type' => $cwi['type'] ?? 'daily', 'current_balance' => $walletBalance,
+        'is_target' => $isTarget, 'sufficient_wallets' => $sufficientWallets, 'all_wallets' => $allWallets,
+        'category_id' => $categoryId, 'category' => $categoryId,
+        'description' => $description, 'transaction_date' => $transactionDate, 'type' => $type,
+    ];
+}
+
 function applyPendingEdit($transaction, $pending, $userId) {
     if (empty($pending)) return false;
 

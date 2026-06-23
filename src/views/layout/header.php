@@ -24,8 +24,7 @@ if (!empty($loginToken)) {
 
     archiveExpiredTransactions($userId);
     purgeArchivedTransactions($userId);
-    archiveOldFeedbacks();
-    purgeOldArchivedFeedbacks();
+
 }
 ?>
 
@@ -175,13 +174,7 @@ if (!empty($loginToken)) {
         }
     </style>
 </head>
-<body
-    data-user-hash="<?= $userId > 0 ? substr(hash('sha256', 'user_' . $userId . '_' . USER_HASH_SALT), 0, 16) : '0' ?>"
-    data-role="<?= htmlspecialchars($userRole ?? '') ?>"
->
-<?php if (!empty($loginToken)): ?>
-<link rel="stylesheet" href="<?= _CSS ?>pages/user/feedback.css?v=<?= time() ?>">
-<?php endif; ?>
+<body>
 
 <?php if ($globalNotification): ?>
     <div

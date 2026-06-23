@@ -10,14 +10,7 @@ if (getSession('role') !== 'admin') {
     redirect("?template=user&action=dashboard");
 }
 
-// ── AJAX: Cursor-based pagination (load more) ──
-if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
-    $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : "";
-    $lastId = isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0;
-    $lastUsageCount = isset($_GET['last_usage_count']) ? (int)$_GET['last_usage_count'] : -1;
-    $lastName = isset($_GET['last_name']) ? $_GET['last_name'] : '';
-    $limit = 5;
-
+function getCategoryPage($keyword, $lastId, $lastUsageCount, $lastName, $limit = 5) {
     $where = "";
     $params = [];
     if (!empty($keyword)) {
@@ -30,43 +23,41 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
         $cursorHaving = "HAVING usage_count < :last_uc OR (usage_count = :last_uc2 AND c.name > :last_n) OR (usage_count = :last_uc3 AND c.name = :last_n2 AND c.id > :last_id)";
         $cursorParams = ['last_uc' => $lastUsageCount, 'last_uc2' => $lastUsageCount, 'last_n' => $lastName, 'last_uc3' => $lastUsageCount, 'last_n2' => $lastName, 'last_id' => $lastId];
     }
-    $allParams = array_merge($params, $cursorParams);
     $fetchLimit = $limit + 1;
-
-    $list = getAll("SELECT c.*, COUNT(t.id) as usage_count FROM category c LEFT JOIN transaction t ON c.id = t.category_id $where GROUP BY c.id $cursorHaving ORDER BY usage_count DESC, c.name ASC LIMIT $fetchLimit", $allParams);
-
+    $list = getAll("SELECT c.*, COUNT(t.id) as usage_count FROM category c LEFT JOIN transaction t ON c.id = t.category_id $where GROUP BY c.id $cursorHaving ORDER BY usage_count DESC, c.name ASC LIMIT $fetchLimit", array_merge($params, $cursorParams));
     $hasMore = count($list) > $limit;
-    if ($hasMore) {
-        $list = array_slice($list, 0, $limit);
-    }
-
-    $rowsHtml = '';
-    foreach ($list as $cat) {
-        $rowsHtml .= '<tr class="filter-tr" id="row-' . $cat['id'] . '">';
-        $rowsHtml .= '<td class="filter-td" style="text-align:center;font-size:24px;">' . htmlspecialchars($cat['icon'] ?? '📦') . '</td>';
-        $rowsHtml .= '<td class="filter-td">' . htmlspecialchars($cat['name']) . '</td>';
-        $rowsHtml .= '<td class="filter-td text-center"><span class="status-badge" style="background: #e1f5fe; color: #0288d1; padding: 5px 15px; border-radius: 20px; font-weight: bold;">' . number_format($cat['usage_count']) . ' lần</span></td>';
-        $rowsHtml .= '<td class="filter-td text-center"><button type="button" onclick="openEditRow(' . $cat['id'] . ',\'' . htmlspecialchars(addslashes($cat['name'])) . '\',\'' . htmlspecialchars(addslashes($cat['icon'] ?? '📦')) . '\')" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px;">✏️ Sửa</button></td>';
-        $rowsHtml .= '</tr>';
-    }
-
-    $nextLastId = 0;
-    $nextLastUsageCount = -1;
-    $nextLastName = '';
+    if ($hasMore) $list = array_slice($list, 0, $limit);
+    $next = ['id' => 0, 'usage_count' => -1, 'name' => ''];
     if (!empty($list)) {
         $lastItem = end($list);
-        $nextLastId = $lastItem['id'];
-        $nextLastUsageCount = $lastItem['usage_count'];
-        $nextLastName = $lastItem['name'];
+        $next = ['id' => $lastItem['id'], 'usage_count' => $lastItem['usage_count'], 'name' => $lastItem['name']];
     }
+    return ['list' => $list, 'hasMore' => $hasMore, 'nextId' => $next['id'], 'nextUsageCount' => $next['usage_count'], 'nextName' => $next['name']];
+}
 
+function renderCategoryRow($cat) {
+    return '<tr class="filter-tr" id="row-' . $cat['id'] . '">'
+        . '<td class="filter-td" style="text-align:center;font-size:24px;">' . htmlspecialchars($cat['icon'] ?? '📦') . '</td>'
+        . '<td class="filter-td">' . htmlspecialchars($cat['name']) . '</td>'
+        . '<td class="filter-td text-center"><span class="status-badge" style="background:#e1f5fe;color:#0288d1;padding:5px 15px;border-radius:20px;font-weight:bold;">' . number_format($cat['usage_count']) . ' lần</span></td>'
+        . '<td class="filter-td text-center"><button type="button" onclick="openEditRow(' . $cat['id'] . ',\'' . htmlspecialchars(addslashes($cat['name'])) . '\',\'' . htmlspecialchars(addslashes($cat['icon'] ?? '📦')) . '\')" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:13px;">✏️ Sửa</button></td>'
+        . '</tr>';
+}
+
+// ── AJAX: Cursor-based pagination (load more) ──
+if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
+    $page = getCategoryPage(
+        isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+        isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0,
+        isset($_GET['last_usage_count']) ? (int)$_GET['last_usage_count'] : -1,
+        isset($_GET['last_name']) ? $_GET['last_name'] : ''
+    );
+    $rowsHtml = '';
+    foreach ($page['list'] as $cat) $rowsHtml .= renderCategoryRow($cat);
     jsonResponse(true, '', [
-        'rows' => $rowsHtml,
-        'has_more' => $hasMore,
-        'next_last_id' => $nextLastId,
-        'next_last_usage_count' => $nextLastUsageCount,
-        'next_last_name' => $nextLastName,
-        'count' => count($list),
+        'rows' => $rowsHtml, 'has_more' => $page['hasMore'],
+        'next_last_id' => $page['nextId'], 'next_last_usage_count' => $page['nextUsageCount'], 'next_last_name' => $page['nextName'],
+        'count' => count($page['list']),
     ]);
 }
 
@@ -76,43 +67,13 @@ layout("header", [
 ]);
 $view = 'categories';
 
-// Search and Cursor Pagination
-
-$limit = 5;
-
 $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : "";
-$where = "";
-$params = [];
-if (!empty($keyword)) {
-    $where = "WHERE c.name LIKE :keyword";
-    $params['keyword'] = "%$keyword%";
-}
-
-$fetchLimit = $limit + 1;
-$categoryList = getAll("
-    SELECT c.*, COUNT(t.id) as usage_count 
-    FROM category c
-    LEFT JOIN transaction t ON c.id = t.category_id 
-    $where
-    GROUP BY c.id 
-    ORDER BY usage_count DESC, c.name ASC
-    LIMIT $fetchLimit
-", $params);
-
-$hasMoreCategories = count($categoryList) > $limit;
-if ($hasMoreCategories) {
-    $categoryList = array_slice($categoryList, 0, $limit);
-}
-
-$categoriesLastId = 0;
-$categoriesLastUsageCount = -1;
-$categoriesLastName = '';
-if (!empty($categoryList)) {
-    $lastItem = end($categoryList);
-    $categoriesLastId = $lastItem['id'];
-    $categoriesLastUsageCount = $lastItem['usage_count'];
-    $categoriesLastName = $lastItem['name'];
-}
+$catPage = getCategoryPage($keyword, 0, -1, '');
+$categoryList = $catPage['list'];
+$hasMoreCategories = $catPage['hasMore'];
+$categoriesLastId = $catPage['nextId'];
+$categoriesLastUsageCount = $catPage['nextUsageCount'];
+$categoriesLastName = $catPage['nextName'];
 
 $message = getFlashData("message");
 $message_type = getFlashData("message_type");
@@ -182,22 +143,7 @@ $message_type = getFlashData("message_type");
                     </thead>
                     <tbody class="filter-tbody" id="catTbody">
                         <?php foreach ($categoryList as $cat): ?>
-                            <tr class="filter-tr" id="row-<?= $cat['id'] ?>">
-                                <td class="filter-td" style="text-align:center; font-size:24px;" id="icon-display-<?= $cat['id'] ?>"><?= htmlspecialchars($cat['icon'] ?? '📦') ?></td>
-                                <td class="filter-td" id="name-display-<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></td>
-                                <td class="filter-td text-center">
-                                    <span class="status-badge" style="background: #e1f5fe; color: #0288d1; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
-                                        <?= number_format($cat['usage_count']) ?> lần
-                                    </span>
-                                </td>
-                                <td class="filter-td text-center">
-                                    <button type="button"
-                                            onclick="openEditRow(<?= $cat['id'] ?>, '<?= htmlspecialchars(addslashes($cat['name'])) ?>', '<?= htmlspecialchars(addslashes($cat['icon'] ?? '📦')) ?>')"
-                                            style="background:#3498db; color:#fff; border:none; border-radius:6px; padding:5px 12px; cursor:pointer; font-size:13px;">
-                                        ✏️ Sửa
-                                    </button>
-                                </td>
-                            </tr>
+                            <?= renderCategoryRow($cat) ?>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

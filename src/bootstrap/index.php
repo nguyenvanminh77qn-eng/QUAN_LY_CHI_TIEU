@@ -10,7 +10,8 @@
     require_once __DIR__ . '/../app/Helpers/transaction_policy.php';
     require_once __DIR__ . '/../app/Helpers/transaction_helpers.php';
     require_once __DIR__ . '/../app/Helpers/wallet_helper.php';
-    require_once __DIR__ . '/../app/Helpers/feedback_helper.php';
+    require_once __DIR__ . '/../app/Helpers/dashboard_helper.php';
+    require_once __DIR__ . '/../app/Helpers/filter_helper.php';
 
     session_set_cookie_params([
         'httponly' => true,

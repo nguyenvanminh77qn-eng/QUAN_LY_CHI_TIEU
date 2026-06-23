@@ -30,7 +30,7 @@ if (isset($_POST['save_wallet'])) {
             $allWallets = getWallets($userId);
             $gt = 0;
             foreach ($allWallets as $w) $gt += getWalletBalance($w['id'], $userId);
-            jsonResponse(true, 'Đã cập nhật ví.', ['wallet'=>['id'=>$id,'name'=>$name,'icon'=>$icon,'type'=>$type,'balance'=>getWalletBalance($id,$userId)],'grand_total'=>$gt]);
+            jsonResponse(true, 'Đã cập nhật ví.', ['wallet'=>['id'=>$id,'name'=>$name,'icon'=>$icon,'type'=>$type,'balance'=>getWalletBalance($id,$userId),'is_default'=>(bool)($existing['is_default'])],'grand_total'=>$gt]);
         }
         setMessage('Đã cập nhật ví.','success');
     } else {
@@ -43,7 +43,7 @@ if (isset($_POST['save_wallet'])) {
             $allWallets = getWallets($userId);
             $gt = 0;
             foreach ($allWallets as $w) $gt += getWalletBalance($w['id'], $userId);
-            jsonResponse(true, 'Đã thêm ví mới.', ['wallet'=>['id'=>$newId,'name'=>$name,'icon'=>$icon,'type'=>$type,'balance'=>0],'grand_total'=>$gt]);
+            jsonResponse(true, 'Đã thêm ví mới.', ['wallet'=>['id'=>$newId,'name'=>$name,'icon'=>$icon,'type'=>$type,'balance'=>0,'is_default'=>false],'grand_total'=>$gt]);
         }
         setMessage('Đã thêm ví mới.','success');
     }

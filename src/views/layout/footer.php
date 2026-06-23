@@ -1,14 +1,9 @@
 <?php
     if(!CODE) die('Bạn không có quyền truy cập vào trang này');
-    $feedbackAlreadyLoaded = false;
     if(!empty($js)){
         foreach($js as $item){
-            if($item === 'pages/user/feedback') $feedbackAlreadyLoaded = true;
             echo '<script src="'. _JS .$item.'.js?v='.time().'"></script>';
         }
-    }
-    if(!$feedbackAlreadyLoaded){
-        echo '<script src="'. _JS .'pages/user/feedback.js?v='.time().'"></script>';
     }
 ?>
 

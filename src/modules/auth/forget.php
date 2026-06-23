@@ -16,6 +16,7 @@
                 $forgotToken = bin2hex(random_bytes(16));
                 $updateData = [
                     'forgotToken' => $forgotToken,
+                    'forgot_expires' => date("Y-m-d H:i:s", strtotime('+1 hour')),
                     'update_at' => date("Y-m-d H:i:s")
                 ];
                 $updateUser = update("user", $updateData, "id = :id", ['id' => $user['id']]);

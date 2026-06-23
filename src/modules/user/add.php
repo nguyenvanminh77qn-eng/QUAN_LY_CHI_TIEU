@@ -59,53 +59,19 @@ if ($walletId > 0) {
 $multiBailout = $filterAll['multi_bailout'] ?? [];
 $multiAmounts = $filterAll['multi_amounts'] ?? [];
 
-// ── Check balance for expense + unified bailout ──
+function bailoutRedirect($data) {
+    setFlashData('bailout_modal', $data);
+    setFlashData('old_data', $GLOBALS['data']);
+    setMessage('Ví không đủ số dư.','warning');
+    redirect('?template=user&action=add');
+}
 $balanceError = null;
 $deficit = 0;
 if ($type === 'expense' && $walletId > 0 && !$bailoutWalletId && empty($multiBailout)) {
     $walletBalance = getWalletBalance($walletId, $id);
     if ((float)$price > $walletBalance) {
         $deficit = (float)$price - $walletBalance;
-
-        // Find all other wallets with sufficient balance
-        $otherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-        $sufficientWallets = [];
-        foreach ($otherWallets as $ow) {
-            $ob = getWalletBalance($ow['id'], $id);
-            if ($ob >= (float)$price) {
-                $sufficientWallets[] = $ow + ['balance' => $ob];
-            }
-        }
-
-        $currentWalletInfo = getOne("SELECT name, icon, type FROM wallet WHERE id = :id", ['id'=>$walletId]);
-        $isTarget = $currentWalletInfo && $currentWalletInfo['type'] === 'target';
-
-        $allOtherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-        $allWallets = [['id' => $walletId, 'name' => $currentWalletInfo['name'], 'icon' => $currentWalletInfo['icon'], 'type' => $currentWalletInfo['type'], 'balance' => $walletBalance]];
-        foreach ($allOtherWallets as $ow) {
-            $allWallets[] = $ow + ['balance' => getWalletBalance($ow['id'], $id)];
-        }
-
-        setFlashData('bailout_modal', [
-            'deficit' => $deficit,
-            'price' => $price,
-            'wallet_id' => $walletId,
-            'wallet_name' => $currentWalletInfo['name'] ?? '',
-            'wallet_icon' => $currentWalletInfo['icon'] ?? '💰',
-            'wallet_type' => $currentWalletInfo['type'] ?? 'daily',
-            'current_balance' => $walletBalance,
-            'is_target' => $isTarget,
-            'sufficient_wallets' => $sufficientWallets,
-            'all_wallets' => $allWallets,
-            'category_id' => $categoryId,
-            'category' => $categoryId,
-            'description' => $description,
-            'transaction_date' => $transactionDate,
-            'type' => $type,
-        ]);
-        setFlashData('old_data', $data);
-        setMessage('Ví không đủ số dư.','warning');
-        redirect('?template=user&action=add');
+        bailoutRedirect(buildBailoutModalData($id, $walletId, $price, $deficit, $categoryId, $description, $transactionDate, $type));
     }
 }
 
@@ -171,33 +137,8 @@ if ($type === 'expense' && !$bailoutWalletId && !$confirmDeficit && empty($multi
     if ($balanceCheck !== null) {
         $parts = explode('|', $balanceCheck);
         $deficitVal = (int)($parts[1] ?? 0);
-        // Use unified bailout instead
         if ($deficitVal > 0) {
-            // try to find wallets
-            $otherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-            $sufficientWallets = [];
-            foreach ($otherWallets as $ow) {
-                $ob = getWalletBalance($ow['id'], $id);
-                if ($ob >= (float)$price) {
-                    $sufficientWallets[] = $ow + ['balance' => $ob];
-                }
-            }
-            $cwi = getOne("SELECT name, icon, type FROM wallet WHERE id = :id", ['id'=>$walletId]);
-            $isTarget = $cwi && $cwi['type'] === 'target';
-            $allOtherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-            $allWallets = [['id' => $walletId, 'name' => $cwi['name'], 'icon' => $cwi['icon'], 'type' => $cwi['type'], 'balance' => getWalletBalance($walletId, $id)]];
-            foreach ($allOtherWallets as $ow) $allWallets[] = $ow + ['balance' => getWalletBalance($ow['id'], $id)];
-            setFlashData('bailout_modal', [
-                'deficit' => $deficitVal, 'price' => $price,
-                'wallet_id' => $walletId, 'wallet_name' => $cwi['name']??'', 'wallet_icon' => $cwi['icon']??'💰',
-                'wallet_type' => $cwi['type']??'daily', 'current_balance' => getWalletBalance($walletId, $id),
-                'is_target' => $isTarget, 'sufficient_wallets' => $sufficientWallets, 'all_wallets' => $allWallets,
-                'category_id' => $categoryId, 'category' => $categoryId, 'description' => $description,
-                'transaction_date' => $transactionDate, 'type' => $type,
-            ]);
-            setFlashData('old_data', $data);
-            setMessage('Ví không đủ số dư.','warning');
-            redirect('?template=user&action=add');
+            bailoutRedirect(buildBailoutModalData($id, $walletId, $price, $deficitVal, $categoryId, $description, $transactionDate, $type));
         }
     }
 }
@@ -205,36 +146,12 @@ if ($type === 'expense' && !$bailoutWalletId && !$confirmDeficit && empty($multi
 // ── Validate fields + limits + budget + suspicious ──
 $result = validateTransaction($id, $data);
 
-// Nếu user confirm deficit, bỏ qua lỗi balance để khỏi loop
 if (!empty($result['errors'])) {
     $balanceError = $result['errors']['balance'] ?? '';
     if ($balanceError !== null && str_starts_with($balanceError, 'deficit|')) {
         $parts = explode('|', $balanceError);
         $deficitVal = (int)($parts[1] ?? 0);
-        $otherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-        $sufficientWallets = [];
-        foreach ($otherWallets as $ow) {
-            $ob = getWalletBalance($ow['id'], $id);
-            if ($ob >= (float)$price) {
-                $sufficientWallets[] = $ow + ['balance' => $ob];
-            }
-        }
-        $cwi = getOne("SELECT name, icon, type FROM wallet WHERE id = :id", ['id'=>$walletId]);
-        $isTarget = $cwi && $cwi['type'] === 'target';
-        $allOtherWallets = getAll("SELECT id, name, icon, type FROM wallet WHERE user_id = :uid AND id != :wid", ['uid'=>$id, 'wid'=>$walletId]);
-        $allWallets = [['id' => $walletId, 'name' => $cwi['name'], 'icon' => $cwi['icon'], 'type' => $cwi['type'], 'balance' => getWalletBalance($walletId, $id)]];
-        foreach ($allOtherWallets as $ow) $allWallets[] = $ow + ['balance' => getWalletBalance($ow['id'], $id)];
-        setFlashData('bailout_modal', [
-            'deficit' => $deficitVal, 'price' => $price,
-            'wallet_id' => $walletId, 'wallet_name' => $cwi['name']??'', 'wallet_icon' => $cwi['icon']??'💰',
-            'wallet_type' => $cwi['type']??'daily', 'current_balance' => getWalletBalance($walletId, $id),
-            'is_target' => $isTarget, 'sufficient_wallets' => $sufficientWallets, 'all_wallets' => $allWallets,
-            'category_id' => $categoryId, 'category' => $categoryId, 'description' => $description,
-            'transaction_date' => $transactionDate, 'type' => $type,
-        ]);
-        setFlashData('old_data', $data);
-        setMessage('Ví không đủ số dư.','warning');
-        redirect('?template=user&action=add');
+        bailoutRedirect(buildBailoutModalData($id, $walletId, $price, $deficitVal, $categoryId, $description, $transactionDate, $type));
     }
     setFlashData('errors', $result['errors']);
     $hasBudgetError = !empty($result['errors']['budget']) || !empty($result['errors']['monthly_budget']);

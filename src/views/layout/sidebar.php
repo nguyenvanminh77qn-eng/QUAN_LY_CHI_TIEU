@@ -13,9 +13,6 @@ $loginToken = getSession('loginToken');
     <a href="?template=user&action=budget" class="<?= ($view == 'budget') ? 'active' : '' ?>">Ngân sách</a>
     <a href="?template=user&action=limit" class="<?= ($view == 'limit') ? 'active' : '' ?>">Hạn mức</a>
     <a href="?template=user&action=filter" class="<?= ($view == 'filter') ? 'active' : '' ?>">Tìm kiếm</a>
-    <a href="?template=user&action=inbox" class="<?= ($view == 'inbox') ? 'active' : '' ?>" style="position:relative;">Hộp thư
-      <span class="sidebar-badge is-hidden" id="sidebar-inbox-badge" aria-label="Tin nhắn chưa đọc"></span>
-    </a>
     <a href="?template=user&action=export" class="<?= ($view == 'export') ? 'active' : '' ?>">Xuất báo cáo</a>
     <a href="?template=user&action=wallet" class="<?= ($view == 'wallet') ? 'active' : '' ?>">Quản lý Ví</a>
   </nav>

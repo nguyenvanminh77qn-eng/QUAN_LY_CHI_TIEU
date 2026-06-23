@@ -30,35 +30,28 @@ $totalDaily += max(0, $legacyBalance);
 $grandTotal = $totalDaily + $totalEwallet + $totalTarget;
 $noanim = isset($_GET['noanim']) ? 1 : 0;
 
-// Grouped transfers: pair expense + income by same price + close timestamp
+// Transfer history from wallet_transfer
 $pairedTransfers = [];
 $rawTransfers = getAll(
-    "SELECT e.id AS exp_id, e.wallet_id AS from_id, e.price, e.description AS exp_desc, e.transaction_date, e.create_at,
-            i.id AS inc_id, i.wallet_id AS to_id, i.description AS inc_desc
-     FROM transaction e
-     JOIN transaction i ON i.user_id = e.user_id AND i.price = e.price
-         AND i.source_type = 'transfer' AND i.type = 'income'
-         AND e.type = 'expense' AND e.source_type = 'transfer'
-         AND ABS(TIMESTAMPDIFF(SECOND, e.create_at, i.create_at)) < 10
-     WHERE e.user_id = :uid
-     ORDER BY e.create_at DESC LIMIT 20",
+    "SELECT wt.*,
+            f.icon AS from_icon, f.name AS from_name,
+            t.icon AS to_icon, t.name AS to_name
+     FROM wallet_transfer wt
+     LEFT JOIN wallet f ON f.id = wt.from_wallet_id
+     LEFT JOIN wallet t ON t.id = wt.to_wallet_id
+     WHERE wt.user_id = :uid
+     ORDER BY wt.created_at DESC LIMIT 20",
     ['uid' => $userId]
 ) ?: [];
 foreach ($rawTransfers as $r) {
-    $note = '';
-    $d = $r['exp_desc'];
-    if (str_starts_with($d, 'Chuyển: ')) $note = substr($d, 8);
-    elseif (str_starts_with($d, 'Nhận: ')) $note = substr($d, 6);
-    $fromW = getOne("SELECT name,icon FROM wallet WHERE id=:id", ['id'=>$r['from_id']]);
-    $toW = getOne("SELECT name,icon FROM wallet WHERE id=:id", ['id'=>$r['to_id']]);
     $pairedTransfers[] = [
-        'price' => $r['price'],
-        'note' => $note,
-        'date' => $r['transaction_date'],
-        'from_name' => $fromW ? ($fromW['icon'].' '.$fromW['name']) : 'Đã xóa',
-        'to_name' => $toW ? ($toW['icon'].' '.$toW['name']) : 'Đã xóa',
-        'from_id' => $r['from_id'],
-        'to_id' => $r['to_id'],
+        'price' => $r['amount'],
+        'note' => $r['description'],
+        'date' => $r['created_at'],
+        'from_name' => $r['from_name'] ? ($r['from_icon'].' '.$r['from_name']) : 'Đã xóa',
+        'to_name' => $r['to_name'] ? ($r['to_icon'].' '.$r['to_name']) : 'Đã xóa',
+        'from_id' => $r['from_wallet_id'],
+        'to_id' => $r['to_wallet_id'],
     ];
 }
 ?>
@@ -359,6 +352,67 @@ function updateHeroTotal(total) {
     if (el) el.textContent = total.toLocaleString('vi-VN');
 }
 
+function generateWalletCardHtml(w, bal) {
+    var esc = function(s) { return String(s).replace(/'/g, "\\'"); };
+    var isDefault = w.is_default || false;
+    var balClass = bal >= 0 ? 'pos' : 'neg';
+    var name = esc(w.name);
+    var icon = esc(w.icon || '💰');
+    var delBtn = isDefault ? '' : '<button class="btn-del" onclick="confirmDelete(' + w.id + ',\'' + name + '\')" title="Xóa"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>';
+    var badge = isDefault ? '<span class="wallet-card-badge">Mặc định</span>' : '';
+    return '<div class="wallet-card type-' + w.type + ' reveal" data-wallet-id="' + w.id + '">'
+        + '<div class="wallet-card-icon-wrap">' + (w.icon || '💰') + '</div>'
+        + '<div class="wallet-card-body">'
+        + '<div class="wallet-card-top"><span class="wallet-card-name">' + w.name + '</span>' + badge + '</div>'
+        + '<div class="wallet-card-balance ' + balClass + '">' + bal.toLocaleString('vi-VN') + 'đ</div>'
+        + '</div>'
+        + '<div class="wallet-card-actions">'
+        + '<button onclick="openModal({id:\'' + w.id + '\',name:\'' + name + '\',icon:\'' + icon + '\',type:\'' + w.type + '\'})" title="Sửa"><span class="material-symbols-outlined" style="font-size:18px">edit</span></button>'
+        + delBtn
+        + '</div>'
+        + '</div>';
+}
+
+function recalcGroupTotals() {
+    ['daily','ewallet','target'].forEach(function(type) {
+        var dot = document.querySelector('.wallet-group-dot.' + type);
+        if (!dot) return;
+        var group = dot.closest('.wallet-group');
+        if (!group) return;
+        var cards = group.querySelectorAll('.wallet-card');
+        var total = 0;
+        cards.forEach(function(c) {
+            var el = c.querySelector('.wallet-card-balance');
+            if (!el) return;
+            var val = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
+            if (el.classList.contains('neg')) val = -val;
+            total += val;
+        });
+        var cnt = group.querySelector('.wallet-group-count');
+        if (cnt) cnt.textContent = cards.length + ' ví';
+        var ttl = group.querySelector('.wallet-group-total');
+        if (ttl) {
+            ttl.textContent = total.toLocaleString('vi-VN') + 'đ';
+            ttl.style.color = total >= 0 ? '#059669' : '#dc2626';
+        }
+    });
+    var hSub = document.querySelector('.wallet-hero-sub');
+    if (hSub) {
+        var wCount = document.querySelectorAll('.wallet-card').length;
+        var dTotal = 0, eTotal = 0, tTotal = 0;
+        document.querySelectorAll('.wallet-card').forEach(function(c) {
+            var el = c.querySelector('.wallet-card-balance');
+            if (!el) return;
+            var val = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
+            if (el.classList.contains('neg')) val = -val;
+            if (c.classList.contains('type-daily')) dTotal += val;
+            else if (c.classList.contains('type-ewallet')) eTotal += val;
+            else if (c.classList.contains('type-target')) tTotal += val;
+        });
+        hSub.textContent = wCount + ' ví · ' + dTotal.toLocaleString('vi-VN') + 'đ chi tiêu · ' + eTotal.toLocaleString('vi-VN') + 'đ điện tử · ' + tTotal.toLocaleString('vi-VN') + 'đ mục tiêu';
+    }
+}
+
 function showToast(msg, type) {
     var existing = document.querySelector('.wallet-toast');
     if (existing) existing.remove();
@@ -383,6 +437,7 @@ document.getElementById('walletForm').addEventListener('submit', function(e) {
     btn.textContent = '⏳';
     var formData = new FormData(this);
     formData.set('ajax', '1');
+    formData.set('save_wallet', '1');
     fetch('?template=user&action=wallet', { method: 'POST', body: formData })
     .then(function(r) { return r.json(); })
     .then(function(res) {
@@ -400,8 +455,24 @@ document.getElementById('walletForm').addEventListener('submit', function(e) {
                         balEl.textContent = d.wallet.balance.toLocaleString('vi-VN') + 'đ';
                         balEl.className = 'wallet-card-balance ' + (d.wallet.balance >= 0 ? 'pos' : 'neg');
                     }
+                    var dot = document.querySelector('.wallet-group-dot.' + d.wallet.type);
+                    if (dot) {
+                        var targetList = dot.closest('.wallet-group').querySelector('.wallet-list');
+                        if (targetList && targetList !== card.parentNode) card.parentNode.removeChild(card);
+                        if (targetList) targetList.insertBefore(card, targetList.firstChild);
+                    }
+                } else {
+                    var list = null;
+                    var dot = document.querySelector('.wallet-group-dot.' + d.wallet.type);
+                    if (dot) list = dot.closest('.wallet-group').querySelector('.wallet-list');
+                    if (list) {
+                        list.insertAdjacentHTML('afterbegin', generateWalletCardHtml(d.wallet, d.wallet.balance !== undefined ? d.wallet.balance : 0));
+                    } else {
+                        location.reload(); return;
+                    }
                 }
             }
+            recalcGroupTotals();
             if (d.grand_total !== undefined) updateHeroTotal(d.grand_total);
             showToast(res.message, 'success');
         } else {
@@ -429,7 +500,7 @@ function confirmDelete(id, name) {
                 card.style.transition = 'all .4s';
                 card.style.opacity = '0';
                 card.style.transform = 'scale(.9)';
-                setTimeout(function() { card.remove(); }, 400);
+                setTimeout(function() { card.remove(); recalcGroupTotals(); }, 400);
             }
             if (d.grand_total !== undefined) updateHeroTotal(d.grand_total);
             showToast(res.message, 'success');

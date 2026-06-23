@@ -10,6 +10,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `wallet_transfer`;
 DROP TABLE IF EXISTS `category_limit`;
 DROP TABLE IF EXISTS `feedbacks`;
 DROP TABLE IF EXISTS `messages`;
@@ -66,6 +67,25 @@ CREATE TABLE `wallet` (
   KEY `wallet_user_idx` (`user_id`),
   CONSTRAINT `wallet_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- =============================================
+-- 2b. WALLET_TRANSFER
+-- =============================================
+CREATE TABLE IF NOT EXISTS `wallet_transfer` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `from_wallet_id` INT NOT NULL,
+  `to_wallet_id` INT NOT NULL,
+  `amount` DECIMAL(15,2) NOT NULL,
+  `description` VARCHAR(200) DEFAULT '',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_wt_user` (`user_id`),
+  INDEX `idx_wt_from` (`from_wallet_id`),
+  INDEX `idx_wt_to` (`to_wallet_id`),
+  CONSTRAINT `fk_wt_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_wt_from` FOREIGN KEY (`from_wallet_id`) REFERENCES `wallet`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_wt_to` FOREIGN KEY (`to_wallet_id`) REFERENCES `wallet`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================
 -- 3. CATEGORY
@@ -235,33 +255,11 @@ CREATE TABLE IF NOT EXISTS `category_limit` (
   KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- =============================================
--- 11. FEEDBACKS (migration_feedback + chat_realtime)
--- =============================================
-CREATE TABLE IF NOT EXISTS `feedbacks` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `parent_id` INT DEFAULT NULL,
-  `sender_id` INT NOT NULL,
-  `receiver_id` INT NOT NULL,
-  `sender_type` ENUM('user', 'admin') NOT NULL,
-  `title` VARCHAR(255) DEFAULT NULL,
-  `message_content` TEXT NOT NULL,
-  `is_read` TINYINT(1) DEFAULT 0,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX `idx_fb_parent` (`parent_id`),
-  INDEX `idx_fb_sender` (`sender_id`),
-  INDEX `idx_fb_receiver` (`receiver_id`),
-  INDEX `idx_fb_unread` (`is_read`, `receiver_id`),
-  INDEX `idx_fb_updated` (`updated_at`),
-  INDEX `idx_fb_id_receiver` (`id`, `receiver_id`),
-  INDEX `idx_fb_recv_read` (`receiver_id`, `is_read`, `id`),
-  CONSTRAINT `fk_fb_parent` FOREIGN KEY (`parent_id`) REFERENCES `feedbacks`(`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_fb_sender` FOREIGN KEY (`sender_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_fb_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
+-- ============================================================
+-- DROP TABLE IF EXISTS `feedbacks`; -- removed chat feature
 -- ============================================================
 -- SAMPLE ACCOUNTS
 -- ============================================================

@@ -10,13 +10,7 @@ if (getSession('role') !== 'admin') {
     redirect("?template=user&action=dashboard");
 }
 
-// ── AJAX: Cursor-based pagination (load more) ──
-if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
-    $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
-    $lastId = isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0;
-    $lastCreateAt = isset($_GET['last_create_at']) ? $_GET['last_create_at'] : '';
-    $limit = 10;
-
+function getUserPage($keyword, $lastId, $lastCreateAt, $limit = 10) {
     $where = "";
     $params = [];
     if (!empty($keyword)) {
@@ -29,65 +23,64 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
         $cursorWhere = "AND (create_at < :last_ca OR (create_at = :last_ca AND id < :last_id))";
         $cursorParams = ['last_ca' => $lastCreateAt, 'last_id' => $lastId];
     }
-    $allParams = array_merge($params, $cursorParams);
     $fetchLimit = $limit + 1;
-
-    $userList = getAll("SELECT * FROM user $where $cursorWhere ORDER BY create_at DESC, id DESC LIMIT $fetchLimit", $allParams);
-
-    $hasMore = count($userList) > $limit;
-    if ($hasMore) {
-        $userList = array_slice($userList, 0, $limit);
+    $list = getAll("SELECT * FROM user $where $cursorWhere ORDER BY create_at DESC, id DESC LIMIT $fetchLimit", array_merge($params, $cursorParams));
+    $hasMore = count($list) > $limit;
+    if ($hasMore) $list = array_slice($list, 0, $limit);
+    $next = ['id' => 0, 'create_at' => ''];
+    if (!empty($list)) {
+        $lastItem = end($list);
+        $next = ['id' => $lastItem['id'], 'create_at' => $lastItem['create_at']];
     }
+    return ['list' => $list, 'hasMore' => $hasMore, 'nextId' => $next['id'], 'nextCreateAt' => $next['create_at']];
+}
 
+function renderUserRow($user) {
+    $onlineCheck = countRows("SELECT id FROM logintoken WHERE user_id = :uid", ["uid" => $user['id']]);
+    $roleBg = $user['role'] === 'admin' ? '#d4a843' : '#3498db';
+    $html = '<tr class="filter-tr">';
+    $html .= '<td class="filter-td">' . htmlspecialchars($user['username']) . '</td>';
+    $html .= '<td class="filter-td">' . htmlspecialchars($user['email']) . '</td>';
+    $html .= '<td class="filter-td"><span style="padding:2px 8px;border-radius:10px;font-size:0.8em;background:' . $roleBg . ';color:white;">' . strtoupper($user['role']) . '</span></td>';
+    $html .= '<td class="filter-td">' . ($user['status'] != 0 ? '<span style="color:green;">✔ Đã kích hoạt</span>' : '<span style="color:red;">✘ Chưa kích hoạt</span>') . '</td>';
+    $html .= '<td class="filter-td">';
+    if ($user['status'] == 1) {
+        $html .= $onlineCheck ? '<span style="color:green;">✔ Đang hoạt động</span>' : '<span style="color:#666;">○ Đang ngoại tuyến</span>';
+    } elseif ($user['status'] == 2) {
+        $html .= '<span style="color:red;">🔒 Đã bị khóa</span>';
+    } else {
+        $html .= '<span style="color:orange;">⏳ Chờ kích hoạt</span>';
+    }
+    $html .= '</td>';
+    $html .= '<td class="filter-td text-center">';
+    if ($user['role'] !== 'admin') {
+        $labels = [0 => '✅ Kích hoạt', 1 => '🔒 Khóa', 2 => '🔓 Mở'];
+        $titles = [0 => 'Kích hoạt hộ', 1 => 'Khóa tài khoản', 2 => 'Mở khóa'];
+        $html .= '<form action="?template=admin&action=users" method="POST" style="display:inline;">';
+        $html .= '<input type="hidden" name="id" value="' . $user['id'] . '">';
+        $html .= '<input type="hidden" name="current_status" value="' . $user['status'] . '">';
+        $html .= '<button type="submit" name="toggle_status" class="action-btn status" title="' . ($titles[$user['status']] ?? '') . '">' . ($labels[$user['status']] ?? '') . '</button>';
+        $html .= '</form>';
+    } else {
+        $html .= '<span style="color:#999;font-style:italic;font-size:0.9em;">Không được phép</span>';
+    }
+    $html .= '</td></tr>';
+    return $html;
+}
+
+// ── AJAX: Cursor-based pagination (load more) ──
+if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
+    $page = getUserPage(
+        isset($_GET['keyword']) ? trim($_GET['keyword']) : '',
+        isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0,
+        isset($_GET['last_create_at']) ? $_GET['last_create_at'] : ''
+    );
     $rowsHtml = '';
-    foreach ($userList as $user) {
-        $rowsHtml .= '<tr class="filter-tr">';
-        $rowsHtml .= '<td class="filter-td">' . htmlspecialchars($user['username']) . '</td>';
-        $rowsHtml .= '<td class="filter-td">' . htmlspecialchars($user['email']) . '</td>';
-        $rowsHtml .= '<td class="filter-td"><span style="padding:2px 8px;border-radius:10px;font-size:0.8em;background:' . ($user['role'] === 'admin' ? '#d4a843' : '#3498db') . ';color:white;">' . strtoupper($user['role']) . '</span></td>';
-        $rowsHtml .= '<td class="filter-td">' . ($user['status'] != 0 ? '<span style="color:green;">✔ Đã kích hoạt</span>' : '<span style="color:red;">✘ Chưa kích hoạt</span>') . '</td>';
-        $onlineCheck = countRows("SELECT id FROM logintoken WHERE user_id = :uid", ["uid" => $user['id']]);
-        if ($user['status'] == 1) {
-            if ($onlineCheck) {
-                $rowsHtml .= '<td class="filter-td"><span style="color:green;">✔ Đang hoạt động</span></td>';
-            } else {
-                $rowsHtml .= '<td class="filter-td"><span style="color:#666;">○ Đang ngoại tuyến</span></td>';
-            }
-        } elseif ($user['status'] == 2) {
-            $rowsHtml .= '<td class="filter-td"><span style="color:red;">🔒 Đã bị khóa</span></td>';
-        } else {
-            $rowsHtml .= '<td class="filter-td"><span style="color:orange;">⏳ Chờ kích hoạt</span></td>';
-        }
-        $rowsHtml .= '<td class="filter-td text-center">';
-        if ($user['role'] !== 'admin') {
-            $rowsHtml .= '<form action="?template=admin&action=users" method="POST" style="display:inline;">';
-            $rowsHtml .= '<input type="hidden" name="id" value="' . $user['id'] . '">';
-            $rowsHtml .= '<input type="hidden" name="current_status" value="' . $user['status'] . '">';
-            $actionLabel = $user['status'] == 1 ? '🔒 Khóa' : ($user['status'] == 2 ? '🔓 Mở' : '✅ Kích hoạt');
-            $actionTitle = $user['status'] == 1 ? 'Khóa tài khoản' : ($user['status'] == 0 ? 'Kích hoạt hộ' : 'Mở khóa');
-            $rowsHtml .= '<button type="submit" name="toggle_status" class="action-btn status" title="' . $actionTitle . '">' . $actionLabel . '</button>';
-            $rowsHtml .= '</form>';
-        } else {
-            $rowsHtml .= '<span style="color:#999;font-style:italic;font-size:0.9em;">Không được phép</span>';
-        }
-        $rowsHtml .= '</td>';
-        $rowsHtml .= '</tr>';
-    }
-
-    $nextLastId = 0;
-    $nextLastCreateAt = '';
-    if (!empty($userList)) {
-        $lastItem = end($userList);
-        $nextLastId = $lastItem['id'];
-        $nextLastCreateAt = $lastItem['create_at'];
-    }
-
+    foreach ($page['list'] as $user) $rowsHtml .= renderUserRow($user);
     jsonResponse(true, '', [
-        'rows' => $rowsHtml,
-        'has_more' => $hasMore,
-        'next_last_id' => $nextLastId,
-        'next_last_create_at' => $nextLastCreateAt,
-        'count' => count($userList),
+        'rows' => $rowsHtml, 'has_more' => $page['hasMore'],
+        'next_last_id' => $page['nextId'], 'next_last_create_at' => $page['nextCreateAt'],
+        'count' => count($page['list']),
     ]);
 }
 
@@ -97,32 +90,12 @@ layout("header", [
 ]);
 $view = 'users';
 
-// Search and Cursor Pagination
 $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
-$limit = 10;
-
-$where = "";
-$params = [];
-if (!empty($keyword)) {
-    $where = "WHERE username LIKE :keyword OR email LIKE :keyword";
-    $params['keyword'] = "%$keyword%";
-}
-
-$fetchLimit = $limit + 1;
-$userList = getAll("SELECT * FROM user $where ORDER BY create_at DESC, id DESC LIMIT $fetchLimit", $params);
-
-$hasMoreUsers = count($userList) > $limit;
-if ($hasMoreUsers) {
-    $userList = array_slice($userList, 0, $limit);
-}
-
-$usersLastId = 0;
-$usersLastCreateAt = '';
-if (!empty($userList)) {
-    $lastItem = end($userList);
-    $usersLastId = $lastItem['id'];
-    $usersLastCreateAt = $lastItem['create_at'];
-}
+$userPage = getUserPage($keyword, 0, '');
+$userList = $userPage['list'];
+$hasMoreUsers = $userPage['hasMore'];
+$usersLastId = $userPage['nextId'];
+$usersLastCreateAt = $userPage['nextCreateAt'];
 
 $message = getFlashData("message");
 $message_type = getFlashData("message_type");
@@ -173,52 +146,10 @@ $message_type = getFlashData("message_type");
                             <th class="filter-th">Trạng thái</th>
                             <th class="filter-th text-center">Hành động</th>
                         </tr>
-                    </thead>
+                        </thead>
                     <tbody class="filter-tbody" id="userTbody">
                         <?php foreach ($userList as $user): ?>
-                            <tr class="filter-tr">
-                                <td class="filter-td"><?= htmlspecialchars($user['username']) ?></td>
-                                <td class="filter-td"><?= htmlspecialchars($user['email']) ?></td>
-                                <td class="filter-td">
-                                    <span style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; background: <?= $user['role'] == 'admin' ? '#e67e22' : '#3498db' ?>; color: white;">
-                                        <?= strtoupper($user['role']) ?>
-                                    </span>
-                                </td>
-                                <td class="filter-td">
-                                    <?= $user['status'] != 0 ? '<span style="color: green;">✔ Đã kích hoạt</span>' : '<span style="color: red;">✘ Chưa kích hoạt</span>' ?>
-                                </td>
-                                <td class="filter-td">
-                                    <?php if($user['status'] == 1) : ?>
-                                        <?php if(countRows("SELECT id FROM logintoken WHERE user_id = :user_id", ["user_id" => $user['id']])) : ?>
-                                            <span style="color: green;">✔ Đang hoạt động</span>
-                                        <?php else : ?>
-                                            <span style="color: #666;">○ Đang ngoại tuyến</span>
-                                        <?php endif; ?>
-                                    <?php elseif($user['status'] == 2) : ?>
-                                        <span style="color: red;">🔒 Đã bị khóa</span>
-                                    <?php else : ?>
-                                        <span style="color: orange;">⏳ Chờ kích hoạt</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="filter-td text-center">
-                                    <?php if ($user['role'] !== 'admin'): ?>
-                                        <form action="?template=admin&action=users" method="POST" style="display:inline;">
-                                            <input type="hidden" name="id" value="<?= $user['id'] ?>">
-                                            <input type="hidden" name="current_status" value="<?= $user['status'] ?>">
-                                            <button type="submit" name="toggle_status" class="action-btn status" 
-                                                    title="<?= $user['status'] == 1 ? 'Khóa tài khoản' : ($user['status'] == 0 ? 'Kích hoạt hộ' : 'Mở khóa') ?>">
-                                                <?php 
-                                                    if($user['status'] == 1) echo '🔒 Khóa';
-                                                    elseif($user['status'] == 2) echo '🔓 Mở';
-                                                    else echo '✅ Kích hoạt';
-                                                ?>
-                                            </button>
-                                        </form>
-                                    <?php else: ?>
-                                        <span style="color: #999; font-style: italic; font-size: 0.9em;">Không được phép</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
+                            <?= renderUserRow($user) ?>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

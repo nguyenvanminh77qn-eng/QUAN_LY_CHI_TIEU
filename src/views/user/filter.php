@@ -2,16 +2,9 @@
 if(!CODE) die('Bạn không có quyền truy cập vào trang này');
 
 $view = 'filter';
-
 $loginToken = getSession('loginToken');
-if(empty($loginToken)){
-    setMessage("Bạn phải đăng nhập", "error");
-    redirect("?template=auth&action=login.view");
-}
-if (getSession('role') !== 'user') {
-    setMessage("Bạn không có quyền truy cập trang này", "error");
-    redirect("?template=admin&action=dashboard");
-}
+if(empty($loginToken)){ setMessage("Bạn phải đăng nhập","error"); redirect("?template=auth&action=login.view"); }
+if (getSession('role') !== 'user') { setMessage("Bạn không có quyền truy cập trang này","error"); redirect("?template=admin&action=dashboard"); }
 
 // ── AJAX: Cursor-based pagination (load more) ──
 if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
@@ -20,267 +13,46 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
     $where = preg_replace('/(?<![.\w])type\s*=/', 'transaction.type =', $where);
     $params = getSession("filter_params") ?? ['user_id' => $userId];
 
-    $lastId = isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0;
-    $lastDate = isset($_GET['last_date']) ? $_GET['last_date'] : '';
-
-    $limit = 5;
-
-    // Build cursor WHERE (applied on outer subquery)
-    $cursorWhere = '';
-    $cursorParams = [];
-    if ($lastId > 0 && $lastDate !== '') {
-        $cursorWhere = "WHERE (combined.transaction_date < :last_date OR (combined.transaction_date = :last_date AND combined.id < :last_id))";
-        $cursorParams = ['last_id' => $lastId, 'last_date' => $lastDate];
-    }
-    $allParams = array_merge($params, $cursorParams);
-    $fetchLimit = $limit + 1; // fetch 6 to detect has_more
+    $page = getFilterTransactions($where, $params, 5, isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0, $_GET['last_date'] ?? '');
+    $batchDetails = getFilterBatchDetails($page['items'], $userId);
+    $readyIdMap = getFilterReadyIdMap($page['items'], $userId);
 
     $rowsHtml = '';
-    $sql = "SELECT * FROM (
-                SELECT transaction.id, transaction.wallet_id, transaction_date, category.name as category_name, category.icon as category_icon, description, price, transaction.type, transaction.status, transaction.sync_status, transaction.pending_amount, transaction.pending_type, transaction.pending_wallets_json, wallet.name as wallet_name, wallet.type as wallet_type, COALESCE(transaction.source_type, 'manual') as source_type, NULL as batch_id
-                FROM transaction 
-                JOIN category ON category.id = transaction.category_id 
-                LEFT JOIN wallet ON wallet.id = transaction.wallet_id
-                $where AND transaction.batch_id IS NULL
-            UNION ALL
-                SELECT MAX(transaction.id) as id, NULL as wallet_id, MAX(transaction_date) as transaction_date, category.name, category.icon, GROUP_CONCAT(DISTINCT transaction.description ORDER BY transaction.id SEPARATOR ', ') as description, SUM(price) as price, MAX(transaction.type) as type, 'active' as status, 'active' as sync_status, NULL as pending_amount, NULL as pending_type, NULL as pending_wallets_json, 'Nhiều ví' as wallet_name, NULL as wallet_type, 'multi' as source_type, transaction.batch_id
-                FROM transaction 
-                JOIN category ON category.id = transaction.category_id 
-                $where AND transaction.batch_id IS NOT NULL
-                GROUP BY transaction.batch_id, category.id
-            ) combined
-            $cursorWhere
-            ORDER BY combined.transaction_date DESC, combined.id DESC
-            LIMIT $fetchLimit";
-    $items = getAll($sql, $allParams);
-
-    $hasMore = count($items) > $limit;
-    if ($hasMore) {
-        $items = array_slice($items, 0, $limit);
-    }
-
-    // Fetch batch detail wallets for multi rows
-    $batchIds = [];
-    foreach ($items as $item) {
-        if (($item['source_type'] ?? '') === 'multi' && !empty($item['batch_id'])) {
-            $batchIds[] = $item['batch_id'];
-        }
-    }
-    $batchDetails = [];
-    if (!empty($batchIds)) {
-        $placeholders = [];
-        $batchParams = ['batch_uid' => $userId];
-        foreach ($batchIds as $i => $bid) { $key = 'bid_' . $i; $placeholders[] = ':' . $key; $batchParams[$key] = $bid; }
-        $details = getAll(
-            "SELECT t.batch_id, t.price, w.icon, w.name
-             FROM transaction t
-             LEFT JOIN wallet w ON w.id = t.wallet_id
-             WHERE t.batch_id IN (" . implode(',', $placeholders) . ") AND t.user_id = :batch_uid
-             ORDER BY t.id",
-            $batchParams
-        );
-        foreach ($details as $d) {
-            $batchDetails[$d['batch_id']][] = $d;
-        }
-    }
-
-    $ajaxReadyIdMap = [];
-    foreach ($items as $item) {
-        if (($item['status'] ?? 'active') === 'pending_delete' && ($item['source_type'] ?? '') !== 'multi') {
-            $bal = ($item['wallet_id'] ?? 0) > 0 ? getWalletBalance($item['wallet_id'], $userId) : 0;
-            $ajaxReadyIdMap[$item['id']] = ($bal - (float)$item['price'] >= 0);
-        }
-    }
-    foreach ($items as $item) {
-        $isMulti = ($item['source_type'] ?? '') === 'multi';
-        $priceFormatted = number_format($item['price'], 0, ',', '.');
-        $typeClass = $item['type'] === 'income' ? 'income' : 'expense';
-        $sign = $item['type'] === 'income' ? '+' : '-';
-        $isPendingDel = !$isMulti && ($item['status'] ?? 'active') === 'pending_delete';
-        $syncStatus = $item['sync_status'] ?? 'active';
-        $isPendingEdit = !$isMulti && $syncStatus === 'pending_edit';
-        $isReady = !$isMulti && $syncStatus === 'ready';
-        $ajaxRowClass = $isPendingDel ? ' tr-pending-delete' : ($isPendingEdit || $isReady ? ' tr-pending-edit' : '');
-        if ($isMulti) $ajaxRowClass .= ' has-batch';
-        $pWallets = !$isMulti ? parsePendingWallets($item) : [];
-        $rowsHtml .= '<tr class="filter-tr' . $ajaxRowClass . '"' . ($isPendingDel ? ' data-pending-id="' . $item['id'] . '"' : '') . '>';
-        $rowsHtml .= '<td class="filter-td">' . htmlspecialchars($item['transaction_date']) . '</td>';
-        $rowsHtml .= '<td class="filter-td category"><span class="category-badge"><span class="category-badge__icon">' . htmlspecialchars($item['category_icon'] ?? '📦') . '</span><span class="category-badge__name">' . htmlspecialchars($item['category_name']) . '</span></span></td>';
-        $rowsHtml .= '<td class="filter-td desc">' . htmlspecialchars($item['description']);
-        if ($isPendingDel) {
-            $rowsHtml .= ' <span class="pending-badge pending-badge-del">Đang chờ xoá</span>';
-        } elseif ($isReady) {
-            $rowsHtml .= ' <span class="pending-badge pending-badge-ready">✅ Sẵn sàng cập nhật</span>';
-        } elseif ($isPendingEdit) {
-            $rowsHtml .= ' <span class="pending-badge pending-badge-edit">⏳ Đang chờ xử lý dòng tiền...</span>';
-        }
-        $rowsHtml .= '</td>';
-        if ($isMulti) {
-            $rowsHtml .= '<td class="filter-td source-cell"><span class="source-badge source-wallet">Nhiều ví';
-            if (!empty($batchDetails[$item['batch_id']])) {
-                $rowsHtml .= '<div class="multi-wallet-detail">';
-                foreach ($batchDetails[$item['batch_id']] as $bd) {
-                    $rowsHtml .= '<div><span class="bwi-icon">' . htmlspecialchars($bd['icon'] ?? '💰') . '</span> ' . htmlspecialchars($bd['name']) . ': <strong>' . number_format($bd['price'], 0, ',', '.') . 'đ</strong></div>';
-                }
-                $rowsHtml .= '</div>';
-            }
-            $rowsHtml .= '</span></td>';
-        } else {
-            $walletName = !empty($item['wallet_name']) ? $item['wallet_name'] : '';
-            $walletType = $item['wallet_type'] ?? 'daily';
-            if (!empty($walletName)) {
-                $rowsHtml .= '<td class="filter-td"><span class="source-badge source-wallet type-' . htmlspecialchars($walletType) . '">' . htmlspecialchars($walletName) . '</span></td>';
-            } else {
-                $rowsHtml .= '<td class="filter-td"><span class="source-badge source-manual">Nhập tay</span></td>';
-            }
-        }
-        if (($isPendingEdit || $isReady) && !empty($pWallets)) {
-            $firstPw = $pWallets[0];
-            $pSign = ($firstPw['type'] ?? $item['type']) === 'income' ? '+' : '-';
-            $pFmt = number_format((float)($firstPw['amount'] ?? 0), 0, ',', '.');
-            $rowsHtml .= '<td class="filter-td ' . $typeClass . '"><span class="price-old">' . $sign . ' ' . $priceFormatted . ' đ</span><span class="price-pending">→ ' . $pSign . ' ' . $pFmt . ' đ</span></td>';
-        } else {
-            $rowsHtml .= '<td class="filter-td ' . $typeClass . '">' . $sign . ' ' . $priceFormatted . ' đ</td>';
-        }
-        $rowsHtml .= '<td class="filter-td text-center">';
-        if ($isPendingDel) {
-            $pendingIsReady = $ajaxReadyIdMap[$item['id']] ?? false;
-            $rowsHtml .= '<span class="pending-row-actions">';
-            if ($pendingIsReady) {
-                $rowsHtml .= '<button type="button" class="btn-pending-row-confirm" onclick="submitPendingAction(' . $item['id'] . ', \'confirm\')">Xác nhận</button>';
-            } else {
-                $rowsHtml .= '<button type="button" class="btn-pending-row-wait" disabled>Chờ xử lý</button>';
-            }
-            $rowsHtml .= '<button type="button" class="btn-pending-row-cancel" onclick="submitPendingAction(' . $item['id'] . ', \'cancel\')">Huỷ</button>';
-            $rowsHtml .= '</span>';
-        } elseif ($isMulti) {
-            $rowsHtml .= '<a href="?template=user&action=edit&id=' . $item['id'] . '" class="btn-action-edit">Sửa</a>';
-        } else {
-            $rowsHtml .= '<div class="action-group">';
-            if ($isReady) {
-                $rowsHtml .= '<button type="button" class="btn-pending-row-confirm" onclick="submitReadyAccept(' . $item['id'] . ')">Xác nhận</button>';
-            } else {
-                $rowsHtml .= '<a href="?template=user&action=edit&id=' . $item['id'] . '" class="btn-action-edit">Sửa</a>';
-            }
-            if ($isPendingEdit || $isReady) {
-                $rowsHtml .= '<button type="button" class="btn-action-detail" onclick="showPendingDetail(' . $item['id'] . ')" title="Xem chi tiết">🔍</button>';
-                $rowsHtml .= '<button type="button" class="btn-pending-row-cancel" onclick="submitPendingEditCancel(' . $item['id'] . ')">Huỷ</button>';
-            }
-            $rowsHtml .= '</div>';
-        }
-        $rowsHtml .= '</td>';
-        $rowsHtml .= '<td class="filter-td text-center">';
-        if (!$isPendingDel) {
-            $rowsHtml .= '<input type="checkbox" class="checkItem" name="ids[]" value="' . $item['id'] . '">';
-        }
-        $rowsHtml .= '</td>';
-        $rowsHtml .= '</tr>';
-    }
-
-    // Determine cursor for next page (last item in returned set)
-    $nextLastId = 0;
-    $nextLastDate = '';
-    if (!empty($items)) {
-        $lastItem = end($items);
-        $nextLastId = $lastItem['id'];
-        $nextLastDate = $lastItem['transaction_date'];
-    }
+    foreach ($page['items'] as $item) $rowsHtml .= renderFilterTransactionRow($item, $batchDetails, $readyIdMap);
 
     jsonResponse(true, '', [
-        'rows' => $rowsHtml,
-        'count' => count($items ?? []),
-        'has_more' => $hasMore,
-        'next_last_id' => $nextLastId,
-        'next_last_date' => $nextLastDate,
-        'empty' => empty($items),
+        'rows' => $rowsHtml, 'count' => count($page['items']),
+        'has_more' => $page['hasMore'], 'next_last_id' => $page['nextId'],
+        'next_last_date' => $page['nextDate'], 'empty' => empty($page['items']),
     ]);
 }
 
-layout("header", [
-    "title" => "Lọc Dữ Liệu",
-    "css" => ["layout/sidebar", "pages/user/filter"]
-]);
+layout("header", ["title" => "Lọc Dữ Liệu", "css" => ["layout/sidebar", "pages/user/filter"]]);
 
-
+// ── Load initial data ──
 $username = getSession('username');
-$id = getSession('id');
+$userId = getSession('id');
 
-// Lấy dữ liệu lọc từ Session
 $where = getSession("filter_where") ?? "WHERE transaction.user_id = :user_id AND transaction.is_archived = 0 AND transaction.source_type != 'transfer'";
-// Sanitize: ensure standalone 'type' is always prefixed with 'transaction.' (old session data may lack it)
 $where = preg_replace('/(?<![.\w])type\s*=/', 'transaction.type =', $where);
-$params = getSession("filter_params") ?? ['user_id' => $id];
+$params = getSession("filter_params") ?? ['user_id' => $userId];
 $oldInputs = getSession("filter_oldInputs") ?? [];
 
-// Cursor-based: load first 5 items without cursor filter
-$limit = 5;
-$fetchLimit = $limit + 1;
-$filterTransaction = [];
-$sql = "SELECT transaction.id, transaction.wallet_id, transaction_date, category.name as category_name, category.icon as category_icon, description, price, transaction.type, transaction.status, transaction.sync_status, transaction.pending_amount, transaction.pending_type, transaction.pending_wallets_json, wallet.name as wallet_name, wallet.type as wallet_type, COALESCE(transaction.source_type, 'manual') as source_type, NULL as batch_id
-        FROM transaction 
-        JOIN category ON category.id = transaction.category_id 
-        LEFT JOIN wallet ON wallet.id = transaction.wallet_id
-        $where AND transaction.batch_id IS NULL
-    UNION ALL
-        SELECT MAX(transaction.id) as id, NULL as wallet_id, MAX(transaction_date) as transaction_date, category.name, category.icon, GROUP_CONCAT(DISTINCT transaction.description ORDER BY transaction.id SEPARATOR ', ') as description, SUM(price) as price, MAX(transaction.type) as type, 'active' as status, 'active' as sync_status, NULL as pending_amount, NULL as pending_type, NULL as pending_wallets_json, 'Nhiều ví' as wallet_name, NULL as wallet_type, 'multi' as source_type, transaction.batch_id
-        FROM transaction 
-        JOIN category ON category.id = transaction.category_id 
-        $where AND transaction.batch_id IS NOT NULL
-        GROUP BY transaction.batch_id, category.id
-        ORDER BY transaction_date DESC, id DESC
-        LIMIT $fetchLimit";
-
-$filterTransaction = getAll($sql, $params);
-
-$filterHasMore = count($filterTransaction) > $limit;
-if ($filterHasMore) {
-    $filterTransaction = array_slice($filterTransaction, 0, $limit);
-}
-
-// Track cursor for JS
-$lastId = 0;
-$lastDate = '';
-if (!empty($filterTransaction)) {
-    $lastItem = end($filterTransaction);
-    $lastId = $lastItem['id'];
-    $lastDate = $lastItem['transaction_date'];
-}
-
-// Fetch batch detail wallets for multi rows
-$batchIds = [];
-foreach ($filterTransaction as $item) {
-    if (($item['source_type'] ?? '') === 'multi' && !empty($item['batch_id'])) {
-        $batchIds[] = $item['batch_id'];
-    }
-}
-$batchDetails = [];
-if (!empty($batchIds)) {
-    $placeholders = [];
-    $batchParams = ['batch_uid' => $id];
-    foreach ($batchIds as $i => $bid) { $key = 'bid_' . $i; $placeholders[] = ':' . $key; $batchParams[$key] = $bid; }
-    $details = getAll(
-        "SELECT t.batch_id, t.price, w.icon, w.name
-         FROM transaction t
-         LEFT JOIN wallet w ON w.id = t.wallet_id
-         WHERE t.batch_id IN (" . implode(',', $placeholders) . ") AND t.user_id = :batch_uid
-         ORDER BY t.id",
-        $batchParams
-    );
-    foreach ($details as $d) {
-        $batchDetails[$d['batch_id']][] = $d;
-    }
-}
+$page = getFilterTransactions($where, $params);
+$filterTransaction = $page['items'];
+$filterHasMore = $page['hasMore'];
+$lastId = $page['nextId'];
+$lastDate = $page['nextDate'];
+$batchDetails = getFilterBatchDetails($filterTransaction, $userId);
 
 $categoryList = getCachedCategories('name');
-$wallets = getWallets($id);
+$wallets = getWallets($userId);
 
 $message = getFlashData("message");
 $message_type = getFlashData("message_type");
 
-
-
+[$pendingItems, $readyItems, $readyIdMap] = getFilterPendingInfo($userId);
 ?>
-
 <div class="app-container filter-page">
     <?php layout("sidebar", ["view" => $view]); ?>
 
@@ -353,29 +125,6 @@ $message_type = getFlashData("message_type");
 
             <?php if(!empty($message)) echo showMessage($message, $message_type); ?>
 
-            <?php
-            // ── Kiểm tra pending_delete khi load trang ──
-            $userId = getSession('id');
-            $allPendingTxs = getAll("SELECT t.id, t.price, t.description, t.wallet_id,
-                                    w.name as wallet_name, w.icon as wallet_icon
-                                    FROM transaction t
-                                    LEFT JOIN wallet w ON w.id = t.wallet_id
-                                    WHERE t.user_id = :uid AND t.status = 'pending_delete'",
-                                    ['uid' => $userId]) ?: [];
-            $readyIdMap = [];
-            $pendingItems = [];
-            $readyItems = [];
-            foreach ($allPendingTxs as $tx) {
-                $bal = $tx['wallet_id'] > 0 ? getWalletBalance($tx['wallet_id'], $userId) : 0;
-                $isReady = $bal - (float)$tx['price'] >= 0;
-                $readyIdMap[$tx['id']] = $isReady;
-                if ($isReady) {
-                    $readyItems[] = $tx;
-                } else {
-                    $pendingItems[] = $tx;
-                }
-            }
-            ?>
             <?php if (!empty($pendingItems)): ?>
             <div class="pending-notification">
                 <div class="pending-notif-icon"><span class="material-symbols-outlined">hourglass_top</span></div>
@@ -453,110 +202,22 @@ $message_type = getFlashData("message_type");
                                         <td colspan="7" class="filter-td filter-empty-state">Không có giao dịch nào phù hợp.</td>
                                     </tr>
                             <?php else: ?>
-                                <?php foreach ($filterTransaction as $item): 
-                                    $isMulti = ($item['source_type'] ?? '') === 'multi';
-                                    $isPendingDel = !$isMulti && ($item['status'] ?? 'active') === 'pending_delete';
-                                    $syncStatus = $item['sync_status'] ?? 'active';
-                                    $isPendingEdit = !$isMulti && $syncStatus === 'pending_edit';
-                                    $isReady = !$isMulti && $syncStatus === 'ready';
-                                    $rowClass = $isPendingDel ? ' tr-pending-delete' : ($isPendingEdit || $isReady ? ' tr-pending-edit' : '');
-                                    if ($isMulti) $rowClass .= ' has-batch';
-                                    $pWallets = !$isMulti ? parsePendingWallets($item) : [];
-                                ?>
-                                    <tr class="filter-tr<?= $rowClass ?>"<?= $isPendingDel ? ' data-pending-id="' . $item['id'] . '"' : '' ?>>
-                                        <td class="filter-td"><?= htmlspecialchars($item['transaction_date']) ?></td>
-                                        <td class="filter-td category">
-                                            <span class="category-badge">
-                                                <span class="category-badge__icon"><?= $item['category_icon'] ?? '📦' ?></span>
-                                                <span class="category-badge__name"><?= htmlspecialchars($item['category_name']) ?></span>
-                                            </span>
-                                        </td>
-                                        <td class="filter-td desc">
-                                            <?= htmlspecialchars($item['description']) ?>
-                                            <?php if ($isPendingDel): ?>
-                                                <span class="pending-badge pending-badge-del">Đang chờ xoá</span>
-                                            <?php elseif ($isReady): ?>
-                                                <span class="pending-badge pending-badge-ready">✅ Sẵn sàng cập nhật</span>
-                                            <?php elseif ($isPendingEdit): ?>
-                                                <span class="pending-badge pending-badge-edit">⏳ Đang chờ xử lý dòng tiền...</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="filter-td source-cell">
-                                            <?php if ($isMulti): ?>
-                                                <span class="source-badge source-wallet">Nhiều ví
-                                                <?php if (!empty($batchDetails[$item['batch_id']])): ?>
-                                                <div class="multi-wallet-detail">
-                                                    <?php foreach ($batchDetails[$item['batch_id']] as $bd): ?>
-                                                    <div><span class="bwi-icon"><?= htmlspecialchars($bd['icon'] ?? '💰') ?></span> <?= htmlspecialchars($bd['name']) ?>: <strong><?= number_format($bd['price'], 0, ',', '.') ?>đ</strong></div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                                <?php endif; ?>
-                                                </span>
-                                            <?php else: ?>
-                                                <?= !empty($item['wallet_name']) ? '<span class="source-badge source-wallet type-' . htmlspecialchars($item['wallet_type'] ?? 'daily') . '">' . htmlspecialchars($item['wallet_name']) . '</span>' : '<span class="source-badge source-manual">Nhập tay</span>' ?>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="filter-td <?= $item['type'] == 'income' ? 'income' : 'expense' ?>">
-                                            <?php if (($isPendingEdit || $isReady) && !empty($pWallets)):
-                                                $firstPw = $pWallets[0];
-                                                $pSign = ($firstPw['type'] ?? $item['type']) === 'income' ? '+' : '-';
-                                                $pFmt = number_format((float)($firstPw['amount'] ?? 0), 0, ',', '.');
-                                            ?>
-                                                <span class="price-old"><?= $item['type'] == 'income' ? '+' : '-' ?> <?= number_format($item['price'], 0, ',', '.') ?> đ</span>
-                                                <span class="price-pending">→ <?= $pSign ?> <?= $pFmt ?> đ</span>
-                                            <?php else: ?>
-                                                <?= $item['type'] == 'income' ? '+' : '-' ?> <?= number_format($item['price'], 0, ',', '.') ?> đ
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="filter-td text-center">
-                                            <?php if ($isPendingDel):
-                                                $pendingIsReady = $readyIdMap[$item['id']] ?? false;
-                                            ?>
-                                                <span class="pending-row-actions">
-                                                    <?php if ($pendingIsReady): ?>
-                                                         <button type="button" class="btn-pending-row-confirm" onclick="submitPendingAction(<?= $item['id'] ?>, 'confirm')">Xác nhận</button>
-                                                    <?php else: ?>
-                                                         <button type="button" class="btn-pending-row-wait" disabled>Chờ xử lý</button>
-                                                    <?php endif; ?>
-                                                </span>
-                                            <?php elseif ($isMulti): ?>
-                                                <a href="?template=user&action=edit&id=<?= $item['id'] ?>" class="btn-action-edit">Sửa</a>
-                                            <?php else: ?>
-                                                <div class="action-group">
-                                                    <?php if ($isReady): ?>
-                                                        <button type="button" class="btn-pending-row-confirm" onclick="submitReadyAccept(<?= $item['id'] ?>)">Xác nhận</button>
-                                                    <?php else: ?>
-                                                        <a href="?template=user&action=edit&id=<?= $item['id'] ?>" class="btn-action-edit">Sửa</a>
-                                                    <?php endif; ?>
-                                                    <?php if ($isPendingEdit || $isReady): ?>
-                                                        <button type="button" class="btn-action-detail" onclick="showPendingDetail(<?= $item['id'] ?>)" title="Xem chi tiết">🔍</button>
-                                                        <button type="button" class="btn-pending-row-cancel" onclick="submitPendingEditCancel(<?= $item['id'] ?>)">Huỷ</button>
-                                                    <?php endif; ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="filter-td text-center">
-                                            <?php if (!$isPendingDel): ?>
-                                                <input type="checkbox" class="checkItem" name="ids[]" value="<?= $item['id'] ?>">
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                <?php foreach ($filterTransaction as $item) echo renderFilterTransactionRow($item, $batchDetails, $readyIdMap); ?>
                             <?php endif; ?>
                         </tbody>
                     </table>
-                </div><!-- end filter-table-wrapper -->
+                </div>
                 <div class="load-more-container" id="loadMoreContainer">
                     <button type="button" class="btn-load-more" id="btnLoadMore">Xem thêm</button>
                     <div class="load-more-spinner" id="loadMoreSpinner" style="display:none;">Đang tải...</div>
                 </div>
-                </div><!-- end filter-result-card -->
+                </div>
             </form>
         </div>
     </main>
 </div>
 
-<!-- Hidden form for pending actions (avoids nested forms) -->
+<!-- Hidden form for pending actions -->
 <form id="pendingActionForm" method="POST" action="?template=user&action=filter" style="display:none;">
     <input type="hidden" name="pending_id" id="pendingActionId" value="">
     <input type="hidden" name="confirm_pending_delete" id="pendingActionConfirm" value="">
@@ -567,7 +228,7 @@ $message_type = getFlashData("message_type");
     <input type="hidden" name="accept_ready_edit" id="readyActionAccept" value="">
 </form>
 
-<!-- Custom delete confirmation modal -->
+<!-- Delete confirmation modal -->
 <div id="deleteConfirmModal" class="modal-overlay" style="display:none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -636,26 +297,21 @@ function loadMore() {
                 return;
             }
 
-            // Remove empty state row if present
             var emptyRow = document.getElementById('emptyRow');
             if (emptyRow) emptyRow.remove();
 
-            // Append new rows
             var tbody = document.getElementById('filterTbody');
             tbody.insertAdjacentHTML('beforeend', data.rows);
             if (window.rebindCheckboxes) window.rebindCheckboxes();
 
-            // Update cursor
             cursorLastId = data.next_last_id;
             cursorLastDate = data.next_last_date;
             cursorHasMore = data.has_more;
 
-            // Update result count
             var countEl = document.querySelector('.result-count');
             var currentCount = countEl ? parseInt(countEl.textContent) : 0;
             if (countEl) countEl.textContent = currentCount + data.count;
 
-            // Show/hide load more button
             if (cursorHasMore) {
                 document.getElementById('btnLoadMore').style.display = 'inline';
             } else {
@@ -671,13 +327,9 @@ function loadMore() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (!cursorHasMore) {
-        document.getElementById('loadMoreContainer').style.display = 'none';
-    }
+    if (!cursorHasMore) document.getElementById('loadMoreContainer').style.display = 'none';
     document.getElementById('btnLoadMore').addEventListener('click', loadMore);
 });
-
-// ── Existing functions (unchanged) ──
 
 function submitPendingAction(id, action) {
     document.getElementById('pendingActionId').value = id;
@@ -757,24 +409,17 @@ function showPendingDetail(id) {
         });
 }
 
-function closePendingDetail() {
-    document.getElementById('pendingDetailModal').style.display = 'none';
-}
+function closePendingDetail() { document.getElementById('pendingDetailModal').style.display = 'none'; }
 
 function showDeleteModal() {
     var checked = document.querySelectorAll('.checkItem:checked').length;
-    if (checked === 0) {
-        alert('Vui lòng chọn ít nhất một mục để xóa.');
-        return false;
-    }
+    if (checked === 0) { alert('Vui lòng chọn ít nhất một mục để xóa.'); return false; }
     document.getElementById('deleteCount').textContent = checked;
     document.getElementById('deleteConfirmModal').style.display = 'flex';
     return false;
 }
 
-function closeDeleteModal() {
-    document.getElementById('deleteConfirmModal').style.display = 'none';
-}
+function closeDeleteModal() { document.getElementById('deleteConfirmModal').style.display = 'none'; }
 
 function confirmDeleteSubmit() {
     document.getElementById('deleteConfirmModal').style.display = 'none';

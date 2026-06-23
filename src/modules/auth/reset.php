@@ -6,7 +6,13 @@
         $errors = [];
         $password = $filterAll['password'] ?? '';
         $confirmPassword = $filterAll['confirm_password'] ?? '';
-        $reset = $filterAll['reset'];
+
+        $userId = getSession('reset_user_id');
+        $resetToken = getSession('reset_token');
+        if (empty($userId) || empty($resetToken)) {
+            setMessage("Phiên đặt lại mật khẩu không hợp lệ. Vui lòng yêu cầu lại.", "error");
+            redirect("?template=auth&action=forget.view");
+        }
 
         if(empty($password)){
             $errors['password']['required'] = "Mật khẩu không được để trống";
@@ -25,20 +31,22 @@
                 'forgotToken' => null,
                 'forgot_expires' => null,
                 'update_at' => date("Y-m-d H:i:s")
-            ];  
-            $updatedQuery = update("user", $updateData, "forgotToken = :forgotToken", ['forgotToken' => $reset]);
+            ];
+            $updatedQuery = update("user", $updateData, "id = :id AND forgotToken = :forgotToken", ['id' => $userId, 'forgotToken' => $resetToken]);
             if($updatedQuery){
+                deleteSession('reset_user_id');
+                deleteSession('reset_token');
                 setMessage("Mật khẩu của bạn đã được reset. Bạn có thể đăng nhập bây giờ.", "success");
                 redirect("?template=auth&action=login.view");
             }else{
                 setMessage("Lỗi hệ thống, thử lại sau.", "error");
-                redirect("?template=auth&action=reset.view&reset=".$reset);
+                redirect("?template=auth&action=forget.view");
             }
         }else{
             setFlashData("errors", $errors);
             setFlashData("old", $filterAll);
             setMessage("Vui lòng kiểm tra lại thông tin đã nhập", "error");
-            redirect("?template=auth&action=reset.view&reset=".$reset);
+            redirect("?template=auth&action=reset.view&reset=".$resetToken);
         }
     }
 ?>

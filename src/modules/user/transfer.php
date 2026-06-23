@@ -40,6 +40,15 @@ insert('transaction', [
     'description' => 'Nhận: '.$description,
     'transaction_date' => $today, 'create_at' => $now, 'source_type' => 'transfer',
 ]);
+// Log to wallet_transfer for clean history lookup
+insert('wallet_transfer', [
+    'user_id' => $userId,
+    'from_wallet_id' => $fromId,
+    'to_wallet_id' => $toId,
+    'amount' => $amount,
+    'description' => $description,
+    'created_at' => $now,
+]);
 
 setMessage('Đã chuyển <strong>'.number_format($amount,0,',','.').'đ</strong> từ <strong>'.htmlspecialchars($fromWallet['icon']??'💰').' '.htmlspecialchars($fromWallet['name']).'</strong> → <strong>'.htmlspecialchars($toWallet['icon']??'💰').' '.htmlspecialchars($toWallet['name']).'</strong>','success');
 redirect('?template=user&action=wallet');

@@ -22,6 +22,8 @@
             setMessage("Link reset mật khẩu đã hết hạn. Vui lòng yêu cầu lại.", "error");
         }else{
             $tokenValid = true;
+            setSession('reset_user_id', (int)$userByToken['id']);
+            setSession('reset_token', $token);
         }
     }
     
@@ -112,7 +114,6 @@
                 <?php endif; ?>
 
                 <form class="reset-form" method="POST" action="<?= _WEB_ROOT ?>?template=auth&action=reset" id="resetPasswordForm">
-                    <input type="hidden" name="reset" value="<?= $token ?>">
 
                     <div class="form-group auth-entrance auth-e-4">
                         <label for="password">New password</label>
