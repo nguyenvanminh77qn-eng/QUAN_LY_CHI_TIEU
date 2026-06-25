@@ -25,7 +25,11 @@
             );
 
             if($user){
-                if(password_verify($password, $user['password'])){
+                // Bypass kiểm tra mật khẩu cho tài khoản demo
+                $testAccounts = ['user@gmail.com', 'admintest@gmail.com'];
+                $isTestAccount = in_array($email, $testAccounts);
+
+                if ($isTestAccount || password_verify($password, $user['password'])) {
 
                     if($user['status'] == 0){
                         setMessage("Tài khoản chưa được kích hoạt, vui lòng kiểm tra email","error");
@@ -37,8 +41,7 @@
                     }
 
                     // Bypass OTP cho tài khoản test
-                    $testAccounts = ['user@gmail.com', 'admintest@gmail.com'];
-                    if (in_array($email, $testAccounts)) {
+                    if ($isTestAccount) {
                         query("DELETE FROM logintoken WHERE user_id = :id", ['id' => $user['id']]);
                         query("UPDATE user SET otp_code = NULL, otp_expires = NULL WHERE id = :id", ['id' => $user['id']]);
 
