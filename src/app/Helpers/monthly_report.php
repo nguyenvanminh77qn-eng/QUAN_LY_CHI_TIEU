@@ -211,14 +211,15 @@ class MonthlyReport
                        AND is_archived = 0 AND transaction_date BETWEEN :s AND :e",
                     ['uid' => $userId, 'cid' => $b['category_id'], 's' => $monthStart, 'e' => $monthEnd]
                 )['total'] ?? 0);
-                $bLimit = (float)$b['limit_amount'];
+                $bLimit = (float)($b['amount'] ?? 0);
                 $bPct = $bLimit > 0 ? min(100, round($bSpent / $bLimit * 100)) : 0;
 
                 $pdf->SetFont('DejaVu', '', 8);
                 $pdf->SetTextColor($dark[0], $dark[1], $dark[2]);
                 $pdf->Cell(90, 5, mb_substr($bName, 0, 40), 0, 0);
                 $pdf->SetFont('DejaVu', 'B', 8);
-                $pdf->SetTextColor($bPct >= 90 ? $red : ($bPct >= 75 ? $gold : $green));
+                $barColor = $bPct >= 90 ? $red : ($bPct >= 75 ? $gold : $green);
+                $pdf->SetTextColor($barColor[0], $barColor[1], $barColor[2]);
                 $pdf->Cell(20, 5, number_format($bSpent, 0, ',', '.') . 'd', 0, 0, 'R');
                 $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
                 $pdf->Cell(20, 5, '/' . number_format($bLimit, 0, ',', '.') . 'd', 0, 0, 'R');
